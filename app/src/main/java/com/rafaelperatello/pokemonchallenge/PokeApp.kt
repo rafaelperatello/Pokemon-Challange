@@ -7,6 +7,8 @@ import coil.disk.DiskCache
 import coil.memory.MemoryCache
 import coil.util.DebugLogger
 import com.rafaelperatello.pokemonchallenge.di.appModule
+import com.rafaelperatello.pokemonchallenge.di.dataModule
+import com.rafaelperatello.pokemonchallenge.di.networkModule
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.core.context.GlobalContext.startKoin
@@ -20,7 +22,11 @@ class PokeApp : Application(), ImageLoaderFactory {
         startKoin {
             androidLogger(if (BuildConfig.DEBUG) Level.DEBUG else Level.NONE)
             androidContext(this@PokeApp)
-            modules(appModule)
+            modules(
+                appModule,
+                dataModule,
+                networkModule
+            )
         }
     }
 
