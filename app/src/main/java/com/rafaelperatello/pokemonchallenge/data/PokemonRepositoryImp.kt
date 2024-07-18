@@ -8,14 +8,15 @@ import com.rafaelperatello.pokemonchallenge.domain.repository.PokemonRepository
 import com.rafaelperatello.pokemonchallenge.domain.util.DomainResult
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import kotlin.coroutines.CoroutineContext
 
 internal class PokemonRepositoryImpl(
-    private val pokemonService: PokemonApi
-    // Todo Inject context
+    private val pokemonService: PokemonApi,
+    private val ioContext: CoroutineContext,
 ) : PokemonRepository {
 
     override suspend fun getPokemonList(page: Int): DomainResult<ShallowPokemonList> =
-        withContext(Dispatchers.IO) {
+        withContext(ioContext) {
             // Todo disk cache
             safeApiCall({ dto -> dto.toShallowPokemonList() }) {
                 pokemonService.getList(page)
