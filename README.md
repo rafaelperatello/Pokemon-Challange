@@ -1,7 +1,7 @@
-# Pokemon-Challenge
+# Android Pokémon Challenge
 
-https://gist.github.com/eric-klukovich/70610cc12bf28ffaa6fc3ade8e25bc57
-https://docs.pokemontcg.io/sdks/kotlin/
+- https://gist.github.com/eric-klukovich/70610cc12bf28ffaa6fc3ade8e25bc57
+- https://docs.pokemontcg.io/sdks/kotlin/
 
 ## Stack
 
@@ -28,4 +28,5 @@ https://docs.pokemontcg.io/sdks/kotlin/
 
 ## Notes
 
-Api Cache-Control header is overriden to 3600 seconds (1 hour) to avoid hitting the api too often due to rate limiting.
+The api Cache-Control header is overriden to 3600 seconds (1 hour). This is necessary due to rate
+limiting.
