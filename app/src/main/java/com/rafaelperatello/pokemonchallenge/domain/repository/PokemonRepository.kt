@@ -7,6 +7,6 @@ internal interface PokemonRepository {
 
     suspend fun getPokemonList(page: Int): DomainResult<ShallowPokemonList>
 
-    // Todo full
+    // Todo full entity
     suspend fun getPokemonDetails(id: String): DomainResult<Unit>
 }

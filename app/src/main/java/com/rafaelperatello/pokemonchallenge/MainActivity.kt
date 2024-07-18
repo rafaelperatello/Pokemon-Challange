@@ -75,7 +75,7 @@ internal fun Content(
     onPokemonClick: (ShallowPokemon) -> Unit = {}
 ) {
     Surface(
-        modifier = modifier,
+        modifier = modifier
     ) {
         val state = viewState.collectAsState()
 
@@ -165,7 +165,7 @@ internal fun PokemonGrid(
                 when (newListState) {
                     ListState.PAGINATING -> {
                         LoadingWidget(
-                            modifier = Modifier.fillMaxSize(),
+                            modifier = Modifier.fillMaxSize()
                         )
                     }
 
@@ -174,7 +174,7 @@ internal fun PokemonGrid(
                             modifier = Modifier.fillMaxSize(),
                             onRetryClick = onRetryClick,
                             errorDescription = stringResource(R.string.error_loading_page),
-                            errorAction = stringResource(R.string.retry),
+                            errorAction = stringResource(R.string.retry)
                         )
                     }
 

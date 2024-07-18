@@ -50,13 +50,15 @@ private fun provideHttpClient(context: Context): OkHttpClient {
 }
 
 private fun provideRetrofit(
-    okHttpClient: OkHttpClient,
+    okHttpClient: OkHttpClient
 ): Retrofit {
     val networkJson = Json { ignoreUnknownKeys = true }
     return Retrofit.Builder()
         .baseUrl(Api.BASE_URL)
         .client(okHttpClient)
-        .addConverterFactory(networkJson.asConverterFactory("application/json; charset=UTF8".toMediaType()))
+        .addConverterFactory(
+            networkJson.asConverterFactory("application/json; charset=UTF8".toMediaType())
+        )
         .build()
 }
 

@@ -19,12 +19,13 @@ fun ContentPreview() {
                         repeat(10) {
                             val pokemon = ShallowPokemon(
                                 id = it.toString(),
-                                name = "Pokemon $it",
+                                name = "Pokemon $it"
                             )
 
                             add(pokemon)
                         }
-                    })
+                    }
+                )
             ),
             listState = MutableStateFlow(ListState.PAGINATING)
         )
@@ -43,12 +44,13 @@ fun ContentPreview2() {
                         repeat(10) {
                             val pokemon = ShallowPokemon(
                                 id = it.toString(),
-                                name = "Pokemon $it",
+                                name = "Pokemon $it"
                             )
 
                             add(pokemon)
                         }
-                    })
+                    }
+                )
             ),
             listState = MutableStateFlow(ListState.ERROR)
         )

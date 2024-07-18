@@ -36,7 +36,7 @@ fun LoadingWidget(
         CircularProgressIndicator(
             modifier = Modifier.width(64.dp),
             color = MaterialTheme.colorScheme.secondary,
-            trackColor = MaterialTheme.colorScheme.surfaceVariant,
+            trackColor = MaterialTheme.colorScheme.surfaceVariant
         )
     }
 }
@@ -100,7 +100,7 @@ fun LoadingWidgetPreview() {
     PokemonChallengeTheme() {
         Surface() {
             LoadingWidget(
-                modifier = Modifier.fillMaxSize(),
+                modifier = Modifier.fillMaxSize()
             )
         }
     }
@@ -114,7 +114,7 @@ fun ErrorWidgetPreview() {
             ErrorWidget(
                 modifier = Modifier.fillMaxSize(),
                 errorDescription = stringResource(R.string.error_loading_data),
-                errorAction = stringResource(R.string.retry),
+                errorAction = stringResource(R.string.retry)
             )
         }
     }

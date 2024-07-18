@@ -64,7 +64,7 @@ internal fun PokemonImage(
                 model = imageRequest,
                 contentDescription = pokemon.name,
                 contentScale = ContentScale.Fit,
-                modifier = Modifier.fillMaxSize(),
+                modifier = Modifier.fillMaxSize()
             )
 
             Text(

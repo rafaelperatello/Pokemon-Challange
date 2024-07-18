@@ -122,5 +122,5 @@ internal enum class ListState {
     IDLE,
     PAGINATING,
     ERROR,
-    PAGINATION_EXHAUST,
+    PAGINATION_EXHAUST
 }
