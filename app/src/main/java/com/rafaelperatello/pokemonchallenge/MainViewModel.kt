@@ -54,6 +54,13 @@ internal class MainViewModel(
         }
     }
 
+    fun onRetryClick() {
+        if (_state.value is MainViewModelState.Error) {
+            _state.value = MainViewModelState.Loading
+            getPokemonList(1)
+        }
+    }
+
 }
 
 internal sealed class MainViewModelState {

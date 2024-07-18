@@ -2,4 +2,8 @@
     <string name="app_name">Pokemon Challenge</string>
 
     <string name="title_main">Pokemon cards</string>
+
+    <string name="error_loading_data">Error loading data</string>
+    <string name="retry">Retry</string>
+
 </resources>

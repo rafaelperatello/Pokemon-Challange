@@ -6,12 +6,14 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -27,7 +29,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewLightDark
+import androidx.compose.ui.unit.TextUnit
+import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.request.CachePolicy
@@ -55,7 +65,8 @@ class MainActivity : ComponentActivity() {
                 ) { innerPadding ->
                     Content(
                         modifier = Modifier.padding(innerPadding),
-                        viewState = viewModel.state
+                        viewState = viewModel.state,
+                        onRetryClick = { viewModel.onRetryClick() }
                     )
                 }
             }
@@ -79,6 +90,7 @@ private fun AppBar() {
 private fun Content(
     modifier: Modifier = Modifier,
     viewState: StateFlow<MainViewModelState>,
+    onRetryClick: () -> Unit = {}
 ) {
     Surface(
         modifier = modifier,
@@ -98,7 +110,7 @@ private fun Content(
             }
 
             is MainViewModelState.Error -> {
-                Error()
+                Error(onRetryClick)
             }
         }
     }
@@ -120,18 +132,49 @@ private fun Loading() {
 }
 
 @Composable
-private fun Error() {
+private fun Error(
+    onRetryClick: () -> Unit = {}
+) {
     Column(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Todo string resource
-        Text(text = "Error")
+        val tagRetry = "tag_retry"
+
+        val annotatedString = buildAnnotatedString {
+            append(stringResource(R.string.error_loading_data))
+
+            append("\n\n")
+
+            withStyle(
+                style = SpanStyle(
+                    color = MaterialTheme.colorScheme.secondary,
+                    fontSize = TextUnit(20f, TextUnitType.Sp)
+                )
+            ) {
+                pushStringAnnotation(tag = tagRetry, annotation = tagRetry)
+                append(stringResource(R.string.retry))
+            }
+        }
+
+
+        ClickableText(
+            style = TextStyle(
+                textAlign = TextAlign.Center
+            ),
+            text = annotatedString,
+            onClick = { offset ->
+                annotatedString.getStringAnnotations(offset, offset)
+                    .firstOrNull()?.let { span ->
+                        println("Clicked on ${span.item}")
+                        onRetryClick()
+                    }
+            }
+        )
     }
 }
 
-// Todo validate stability
 @Composable
 private fun PokemonGrid(
     modifier: Modifier = Modifier,
@@ -139,14 +182,15 @@ private fun PokemonGrid(
 ) {
     LazyVerticalGrid(
         modifier = modifier,
-        columns = GridCells.Fixed(4),
+        columns = GridCells.Fixed(3),
+        contentPadding = PaddingValues(3.dp),
         verticalArrangement = Arrangement.spacedBy(3.dp),
         horizontalArrangement = Arrangement.spacedBy(3.dp)
     ) {
         items(pokemonList.size, key = { it }) {
             PokemonImage(
                 modifier = Modifier
-                    .aspectRatio(1f)
+                    .aspectRatio(0.72f)
                     .padding(3.dp),
                 pokemon = pokemonList[it]
             )
@@ -162,7 +206,7 @@ private fun PokemonImage(
     Surface(
         tonalElevation = 3.dp,
         modifier = modifier,
-//        modifier = Modifier.fillMaxSize()
+        shape = MaterialTheme.shapes.small
     ) {
         val context = LocalContext.current
         val placeholder = R.drawable.image_placeholder
@@ -182,7 +226,7 @@ private fun PokemonImage(
 
         AsyncImage(
             model = imageRequest,
-            contentDescription = "Image Description",
+            contentDescription = stringResource(R.string.title_main),
             modifier = Modifier.fillMaxSize(),
             contentScale = ContentScale.Fit,
         )
@@ -239,6 +283,26 @@ fun ContentPreview() {
                     )
                 )
             )
+        )
+    }
+}
+
+@Preview()
+@Composable
+fun ContentPreviewError() {
+    PokemonChallengeTheme() {
+        Content(
+            viewState = MutableStateFlow(MainViewModelState.Error)
+        )
+    }
+}
+
+@Preview()
+@Composable
+fun ContentPreviewLoading() {
+    PokemonChallengeTheme() {
+        Content(
+            viewState = MutableStateFlow(MainViewModelState.Loading)
         )
     }
 }
