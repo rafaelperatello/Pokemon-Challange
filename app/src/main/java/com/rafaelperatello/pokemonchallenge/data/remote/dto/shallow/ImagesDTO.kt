@@ -1,6 +1,6 @@
 package com.rafaelperatello.pokemonchallenge.data.remote.dto.shallow
 
-import com.rafaelperatello.pokemonchallenge.domain.model.pokemon.shallow.PokemonImages
+import com.rafaelperatello.pokemonchallenge.domain.model.shallow.PokemonImages
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
