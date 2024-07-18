@@ -4,6 +4,7 @@
     <string name="title_main">Pokemon cards</string>
 
     <string name="error_loading_data">Error loading data</string>
+    <string name="error_loading_page">Error loading page</string>
     <string name="retry">Retry</string>
 
 </resources>
