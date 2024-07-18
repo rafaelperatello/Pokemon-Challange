@@ -5,12 +5,15 @@ sealed interface DomainError
 sealed interface DataError : DomainError {
 
     enum class Network : DataError {
-        REQUEST_TIMEOUT,
-        TOO_MANY_REQUESTS,
         NO_INTERNET,
-        PAYLOAD_TOO_LARGE,
-        SERVER_ERROR,
-        SERIALIZATION,
+        BAD_REQUEST,
+        UNAUTHORIZED,
+        FORBIDDEN,
+        NOT_FOUND,
+        INTERNAL_SERVER_ERROR,
+        BAD_GATEWAY,
+        SERVICE_UNAVAILABLE,
+        GATEWAY_TIMEOUT,
         UNKNOWN
     }
 

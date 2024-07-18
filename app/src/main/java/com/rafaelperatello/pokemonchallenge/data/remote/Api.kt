@@ -26,14 +26,36 @@ suspend inline fun <DTO, DOMAIN> safeApiCall(
             }
         }
 
-        // Todo handle error response
-        // https://github.com/philipplackner/CleanErrorHandling/blob/master/app/src/main/java/com/plcoding/cleanerrorhandling/data/AuthRepositoryImpl.kt
         val errorBody = response.errorBody()?.string()
         val responseCode = response.code()
         val errorMessage = response.message()
 
-        return DomainResult.Error(Network.UNKNOWN)
+        Log.i(
+            "Retrofit error",
+            "Error code: $responseCode, Error message: $errorMessage, Error body: $errorBody"
+        )
+
+        val error = when (responseCode) {
+            400 -> Network.BAD_REQUEST
+            401 -> Network.UNAUTHORIZED
+            403 -> Network.FORBIDDEN
+            404 -> Network.NOT_FOUND
+            500 -> Network.INTERNAL_SERVER_ERROR
+            502 -> Network.BAD_GATEWAY
+            503 -> Network.SERVICE_UNAVAILABLE
+            504 -> Network.GATEWAY_TIMEOUT
+            else -> Network.UNKNOWN
+        }
+
+        return DomainResult.Error(error)
     } catch (e: Exception) {
-        return DomainResult.Error(Network.UNKNOWN)
+        Log.e("Retrofit error", e.toString())
+
+        val networkError = when (e) {
+            is java.net.UnknownHostException -> Network.NO_INTERNET
+            is java.net.SocketTimeoutException -> Network.GATEWAY_TIMEOUT
+            else -> Network.UNKNOWN
+        }
+        return DomainResult.Error(networkError)
     }
 }
