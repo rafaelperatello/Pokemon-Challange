@@ -34,7 +34,7 @@ class PokeApp : Application(), ImageLoaderFactory {
             .diskCache {
                 DiskCache.Builder()
                     .directory(cacheDir.resolve("image_cache"))
-                    .maxSizeBytes(50 * 1024 * 1024)
+                    .maxSizeBytes(200 * 1024 * 1024)
                     .build()
             }
             .logger(DebugLogger())
