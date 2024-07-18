@@ -17,7 +17,6 @@ internal class PokemonRepositoryImpl(
 
     override suspend fun getPokemonList(page: Int): DomainResult<ShallowPokemonList> =
         withContext(ioContext) {
-            // Todo disk cache
             safeApiCall({ dto -> dto.toShallowPokemonList() }) {
                 pokemonService.getList(page)
             }

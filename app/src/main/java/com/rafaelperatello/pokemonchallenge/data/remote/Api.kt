@@ -1,5 +1,6 @@
 package com.rafaelperatello.pokemonchallenge.data.remote
 
+import android.util.Log
 import com.rafaelperatello.pokemonchallenge.domain.util.DataError.Network
 import com.rafaelperatello.pokemonchallenge.domain.util.DomainResult
 import retrofit2.Response
@@ -15,6 +16,9 @@ suspend inline fun <DTO, DOMAIN> safeApiCall(
 ): DomainResult<DOMAIN> {
     try {
         val response = apiCall()
+
+        Log.i("Cache info", response.raw().cacheResponse.toString())
+
         if (response.isSuccessful) {
             val body = response.body()
             body?.let {
