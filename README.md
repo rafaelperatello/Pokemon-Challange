@@ -31,4 +31,5 @@
 The api Cache-Control header is overriden to 3600 seconds (1 hour). This is necessary due to rate
 limiting.
 
-[Pokémon Logo](https://logowik.com/pokemon-logo-vector-31925.html)
+[Pokémon Splash Logo](https://logowik.com/pokemon-logo-vector-31925.html)
+[Pokémon App Icon](https://upload.wikimedia.org/wikipedia/commons/5/53/Pok%C3%A9_Ball_icon.svg)
