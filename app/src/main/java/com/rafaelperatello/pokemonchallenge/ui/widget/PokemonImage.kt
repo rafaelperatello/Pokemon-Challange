@@ -14,6 +14,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.FilterQuality
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
@@ -43,7 +44,7 @@ internal fun PokemonImage(
     ) {
         val context = LocalContext.current
         val placeholder = R.drawable.image_placeholder
-        val imageUrl = pokemon.images.small ?: pokemon.images.large ?: ""
+        val imageUrl = pokemon.images.small ?: ""
 
         val imageRequest = ImageRequest.Builder(context)
             .data(imageUrl)
@@ -64,7 +65,8 @@ internal fun PokemonImage(
                 model = imageRequest,
                 contentDescription = pokemon.name,
                 contentScale = ContentScale.Fit,
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier.fillMaxSize(),
+                filterQuality = FilterQuality.Low
             )
 
             Text(

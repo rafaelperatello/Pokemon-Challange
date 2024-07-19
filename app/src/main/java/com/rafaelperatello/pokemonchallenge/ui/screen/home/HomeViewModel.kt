@@ -1,4 +1,4 @@
-package com.rafaelperatello.pokemonchallenge
+package com.rafaelperatello.pokemonchallenge.ui.screen.home
 
 import android.util.Log
 import androidx.compose.runtime.Immutable
@@ -79,7 +79,7 @@ internal class MainViewModel(
 
                 _listState.value = ListState.PAGINATING
 
-                delay(4000) // Todo remove this delay
+                delay(2000) // Todo remove this delay
 
                 val result = repository.getPokemonList(nextPage)
                 Log.d("MainViewModel", "fetchNextPage result: $result")

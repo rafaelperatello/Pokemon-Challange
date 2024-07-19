@@ -24,7 +24,7 @@
 ## Features
 
 - List of Pokémons
-- Pokemon detail
+- Pokémons details
 
 ## Notes
 

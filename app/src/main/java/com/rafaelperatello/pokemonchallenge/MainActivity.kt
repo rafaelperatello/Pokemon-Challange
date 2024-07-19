@@ -4,43 +4,50 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyGridState
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.rememberLazyGridState
+import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.rounded.Favorite
+import androidx.compose.material.icons.rounded.Home
+import androidx.compose.material.icons.rounded.Settings
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.coroutineScope
-import com.rafaelperatello.pokemonchallenge.domain.model.shallow.ShallowPokemon
+import androidx.navigation.NavDestination.Companion.hierarchy
+import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.compose.rememberNavController
+import com.rafaelperatello.pokemonchallenge.ui.screen.home.HomeScreen
 import com.rafaelperatello.pokemonchallenge.ui.theme.PokemonChallengeTheme
-import com.rafaelperatello.pokemonchallenge.ui.widget.ErrorWidget
-import com.rafaelperatello.pokemonchallenge.ui.widget.LoadingWidget
 import com.rafaelperatello.pokemonchallenge.ui.widget.PokemonAppBar
-import com.rafaelperatello.pokemonchallenge.ui.widget.PokemonImage
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class MainActivity : ComponentActivity() {
-
-    private val viewModel: MainViewModel by viewModel()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -58,143 +65,136 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             PokemonChallengeTheme {
-                Scaffold(
-                    modifier = Modifier.fillMaxSize(),
-                    topBar = {
-                        PokemonAppBar(stringResource(id = R.string.title_main))
-                    }
-                ) { innerPadding ->
-                    Content(
-                        modifier = Modifier.padding(innerPadding),
-                        viewState = viewModel.state,
-                        listState = viewModel.listState,
-                        onRetryClick = { viewModel.onRetryClick() },
-                        onFetchNextPage = { viewModel.fetchNextPage() },
-                        onPokemonClick = { pokemon ->
-                            // Todo navigate to details
-                        }
-                    )
-                }
+                PokemonScaffold()
             }
         }
     }
 }
 
 @Composable
-internal fun Content(
-    modifier: Modifier = Modifier,
-    viewState: StateFlow<MainViewModelState>,
-    listState: StateFlow<ListState>,
-    onRetryClick: () -> Unit = {},
-    onFetchNextPage: () -> Unit = {},
-    onPokemonClick: (ShallowPokemon) -> Unit = {}
-) {
-    Surface(
-        modifier = modifier
-    ) {
-        val state = viewState.collectAsState()
+fun PokemonScaffold() {
+    val navController = rememberNavController()
 
-        when (val value = state.value) {
-            is MainViewModelState.Loading -> {
-                LoadingWidget(modifier = Modifier.fillMaxSize())
-            }
-
-            is MainViewModelState.Success -> {
-                val lazyGridState = rememberLazyGridState()
-
-                val shouldStartPaginate = remember {
-                    derivedStateOf {
-                        val lastVisibleItemIndex =
-                            lazyGridState.layoutInfo.visibleItemsInfo.lastOrNull()?.index
-                        val totalItemsCount = lazyGridState.layoutInfo.totalItemsCount
-
-                        (lastVisibleItemIndex ?: -10) >= totalItemsCount - 10
-                    }
-                }
-
-                LaunchedEffect(key1 = shouldStartPaginate.value) {
-                    if (shouldStartPaginate.value && listState.value == ListState.IDLE) {
-                        onFetchNextPage()
-                    }
-                }
-
-                PokemonGrid(
-                    modifier = Modifier.fillMaxSize(),
-                    lazyGridState = lazyGridState,
-                    listState = listState,
-                    pokemonList = value.pokemonList,
-                    onPokemonClick = onPokemonClick,
-                    onRetryClick = onFetchNextPage
-                )
-            }
-
-            is MainViewModelState.Error -> {
-                ErrorWidget(
-                    modifier = Modifier.fillMaxSize(),
-                    errorDescription = stringResource(R.string.error_loading_data),
-                    errorAction = stringResource(R.string.retry),
-                    onRetryClick = onRetryClick
-                )
-            }
+    Scaffold(
+        modifier = Modifier.fillMaxSize(),
+        topBar = {
+            PokemonAppBar(title = stringResource(id = R.string.title_main))
+        },
+        bottomBar = {
+            HomeBottomBar(navController = navController)
         }
-    }
-}
-
-// Todo validate stability api
-@Composable
-internal fun PokemonGrid(
-    modifier: Modifier = Modifier,
-    lazyGridState: LazyGridState,
-    listState: StateFlow<ListState>,
-    pokemonList: List<ShallowPokemon>,
-    onPokemonClick: (ShallowPokemon) -> Unit = {},
-    onRetryClick: () -> Unit = {}
-) {
-    LazyVerticalGrid(
-        state = lazyGridState,
-        modifier = modifier,
-        columns = GridCells.Fixed(3),
-        contentPadding = PaddingValues(3.dp),
-        verticalArrangement = Arrangement.spacedBy(3.dp),
-        horizontalArrangement = Arrangement.spacedBy(3.dp)
-    ) {
-        items(pokemonList.size, key = { it }) {
-            PokemonImage(
-                modifier = Modifier
-                    .aspectRatio(0.72f)
-                    .padding(3.dp),
-                pokemon = pokemonList[it],
-                position = it,
-                onPokemonClick = onPokemonClick
+    ) { innerPadding ->
+        Column(
+            modifier = Modifier
+                .padding(innerPadding)
+                .fillMaxSize()
+        ) {
+            MainNavHost(
+                navController = navController,
+                startDestination = BottomBarScreen.Home.route
             )
         }
+    }
+}
 
-        item() {
-            val newListState by listState.collectAsState()
-            Column(
-                modifier = Modifier
-                    .aspectRatio(0.72f)
-                    .padding(3.dp)
-            ) {
-                when (newListState) {
-                    ListState.PAGINATING -> {
-                        LoadingWidget(
-                            modifier = Modifier.fillMaxSize()
-                        )
-                    }
-
-                    ListState.ERROR -> {
-                        ErrorWidget(
-                            modifier = Modifier.fillMaxSize(),
-                            onRetryClick = onRetryClick,
-                            errorDescription = stringResource(R.string.error_loading_page),
-                            errorAction = stringResource(R.string.retry)
-                        )
-                    }
-
-                    else -> {}
-                }
-            }
+@Composable
+fun MainNavHost(
+    navController: NavHostController,
+    startDestination: String
+) {
+    NavHost(
+        navController = navController,
+        startDestination = startDestination
+    ) {
+        composable(route = BottomBarScreen.Home.route) {
+            HomeScreen()
+        }
+        composable(route = BottomBarScreen.Favorites.route) {
+            Text(text = "Favorites")
+        }
+        composable(route = BottomBarScreen.Settings.route) {
+            Text(text = "Settings")
         }
     }
+}
+
+@Composable
+private fun HomeBottomBar(
+    navController: NavHostController
+) {
+    val currentDestination = navController.currentBackStackEntryAsState().value?.destination
+
+    val screens = listOf(
+        BottomBarScreen.Home,
+        BottomBarScreen.Favorites,
+        BottomBarScreen.Settings
+    )
+
+    NavigationBar(
+        containerColor = MaterialTheme.colorScheme.primaryContainer,
+        contentColor = MaterialTheme.colorScheme.primary,
+        modifier = Modifier
+            .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal))
+    ) {
+        screens.forEach { destination ->
+            val selected =
+                currentDestination?.hierarchy?.any { it.route == destination.route } == true
+
+            NavigationBarItem(
+                selected = selected,
+                onClick = {
+                    navController.navigate(destination.route) {
+                        popUpTo(navController.graph.findStartDestination().id)
+                        launchSingleTop = true
+                    }
+                },
+                icon = {
+                    val icon = if (selected) {
+                        destination.selectedIcon
+                    } else {
+                        destination.unselectedIcon
+                    }
+                    Icon(
+                        imageVector = icon,
+                        modifier = Modifier.size(16.dp),
+                        contentDescription = null
+                    )
+                },
+                label = {
+                    Text(
+                        text = stringResource(id = destination.labelRes),
+                        fontSize = 10.sp
+                    )
+                }
+            )
+        }
+    }
+}
+
+sealed class BottomBarScreen(
+    val route: String,
+    val labelRes: Int,
+    val selectedIcon: ImageVector,
+    val unselectedIcon: ImageVector
+) {
+    data object Home : BottomBarScreen(
+        route = "home",
+        labelRes = R.string.home,
+        selectedIcon = Icons.Rounded.Home,
+        unselectedIcon = Icons.Filled.Home
+    )
+
+    data object Favorites : BottomBarScreen(
+        route = "favorites",
+        labelRes = R.string.favorite,
+        selectedIcon = Icons.Rounded.Favorite,
+        unselectedIcon = Icons.Filled.Favorite
+    )
+
+    data object Settings : BottomBarScreen(
+        route = "settings",
+        labelRes = R.string.settings,
+        selectedIcon = Icons.Rounded.Settings,
+        unselectedIcon = Icons.Filled.Settings
+    )
 }

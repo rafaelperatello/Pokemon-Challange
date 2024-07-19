@@ -1,6 +1,6 @@
 package com.rafaelperatello.pokemonchallenge.di
 
-import com.rafaelperatello.pokemonchallenge.MainViewModel
+import com.rafaelperatello.pokemonchallenge.ui.screen.home.MainViewModel
 import kotlinx.coroutines.Dispatchers
 import org.koin.androidx.viewmodel.dsl.viewModelOf
 import org.koin.core.qualifier.named
