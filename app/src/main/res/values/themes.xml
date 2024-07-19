@@ -2,4 +2,11 @@
 <resources>
 
     <style name="Theme.PokemonChallenge" parent="android:Theme.Material.Light.NoActionBar" />
+
+    <style name="Theme.App.Starting" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">#f7f7f7</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/pokemon_small</item>
+        <item name="postSplashScreenTheme">@style/Theme.PokemonChallenge</item>
+    </style>
+
 </resources>

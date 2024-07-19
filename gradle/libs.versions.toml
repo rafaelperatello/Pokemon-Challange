@@ -16,6 +16,7 @@ koin = "3.6.0-Beta4"
 retrofit = "2.11.0"
 coil = "2.6.0"
 uiTextGoogleFonts = "1.6.8"
+splashScreen = "1.0.1"
 
 [libraries]
 coroutines-android = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-android", version.ref = "kotlinCoroutinesAndroid" }
@@ -42,6 +43,7 @@ retrofit-converter-kotlin-serialization = { group = "com.squareup.retrofit2", na
 coil-compose = { group = "io.coil-kt", name = "coil-compose", version.ref = "coil" }
 androidx-ui-text-google-fonts = { group = "androidx.compose.ui", name = "ui-text-google-fonts", version.ref = "uiTextGoogleFonts" }
 kotlin-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinJson" }
+splash-screen = { group = "androidx.core", name = "core-splashscreen", version.ref = "splashScreen" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

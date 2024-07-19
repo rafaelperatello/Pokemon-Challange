@@ -25,13 +25,17 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.lifecycle.coroutineScope
 import com.rafaelperatello.pokemonchallenge.domain.model.shallow.ShallowPokemon
 import com.rafaelperatello.pokemonchallenge.ui.theme.PokemonChallengeTheme
 import com.rafaelperatello.pokemonchallenge.ui.widget.ErrorWidget
 import com.rafaelperatello.pokemonchallenge.ui.widget.LoadingWidget
 import com.rafaelperatello.pokemonchallenge.ui.widget.PokemonAppBar
 import com.rafaelperatello.pokemonchallenge.ui.widget.PokemonImage
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class MainActivity : ComponentActivity() {
@@ -40,6 +44,17 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        var keepSplash = true
+        val splashScreen = installSplashScreen()
+        splashScreen.setKeepOnScreenCondition {
+            keepSplash
+        }
+        lifecycle.coroutineScope.launch {
+            delay(1000)
+            keepSplash = false
+        }
+
         enableEdgeToEdge()
         setContent {
             PokemonChallengeTheme {
@@ -154,7 +169,6 @@ internal fun PokemonGrid(
             )
         }
 
-        // item(key = listState) {
         item() {
             val newListState by listState.collectAsState()
             Column(

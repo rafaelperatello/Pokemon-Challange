@@ -70,6 +70,8 @@ dependencies {
     implementation(libs.coil.compose)
     implementation(libs.androidx.ui.text.google.fonts)
 
+    implementation(libs.splash.screen)
+
     implementation(libs.koin.android)
     implementation(libs.koin.compose)
 
