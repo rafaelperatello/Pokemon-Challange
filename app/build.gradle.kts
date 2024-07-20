@@ -65,6 +65,7 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.ui.material3)
+    implementation(libs.androidx.ui.material3.icons.extended)
     implementation(libs.androidx.ui.paging.compose)
     implementation(libs.androidx.ui.navigation.compose)
     implementation(libs.coil.compose)

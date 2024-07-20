@@ -6,30 +6,41 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.rafaelperatello.pokemonchallenge.domain.model.shallow.ShallowPokemon
 import com.rafaelperatello.pokemonchallenge.domain.repository.PokemonRepository
+import com.rafaelperatello.pokemonchallenge.domain.settings.AppSettings
+import com.rafaelperatello.pokemonchallenge.domain.settings.GridStyle
 import com.rafaelperatello.pokemonchallenge.domain.util.DomainResult
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 
 internal class MainViewModel(
-    private val repository: PokemonRepository
+    private val repository: PokemonRepository,
+    private val appSettings: AppSettings
 ) : ViewModel() {
 
     private val mutex = Mutex()
 
-    private var _state: MutableStateFlow<MainViewModelState> =
+    private val _state: MutableStateFlow<MainViewModelState> =
         MutableStateFlow(MainViewModelState.Loading)
-
     val state: StateFlow<MainViewModelState>
         get() = _state.asStateFlow()
 
-    private var _listState: MutableStateFlow<ListState> = MutableStateFlow(ListState.IDLE)
+    private val _listState: MutableStateFlow<ListState> = MutableStateFlow(ListState.IDLE)
     val listState: StateFlow<ListState>
         get() = _listState.asStateFlow()
+
+
+    val gridStyle: StateFlow<GridStyle> = appSettings.gridStyle.stateIn(
+        viewModelScope,
+        started = SharingStarted.WhileSubscribed(),
+        initialValue = GridStyle.SMALL
+    )
 
     init {
         fetchInitialPage()
@@ -101,6 +112,12 @@ internal class MainViewModel(
                     }
                 }
             }
+        }
+    }
+
+    fun onGridStyleUpdated(style: GridStyle) {
+        viewModelScope.launch {
+            appSettings.setGridStyle(style)
         }
     }
 }

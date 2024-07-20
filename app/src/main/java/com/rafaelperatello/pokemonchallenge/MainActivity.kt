@@ -7,7 +7,6 @@ import androidx.activity.enableEdgeToEdge
 import androidx.annotation.Keep
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.fillMaxSize
@@ -20,20 +19,21 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.outlined.Apps
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.State
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -52,6 +52,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.rafaelperatello.pokemonchallenge.ui.screen.home.HomeScreen
 import com.rafaelperatello.pokemonchallenge.ui.theme.PokemonChallengeTheme
+import com.rafaelperatello.pokemonchallenge.ui.widget.AppBarAction
 import com.rafaelperatello.pokemonchallenge.ui.widget.PokemonAppBar
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -86,7 +87,7 @@ fun PokemonScaffold() {
     val navController = rememberNavController()
 
     val currentBackStackEntry by navController.currentBackStackEntryAsState()
-    val currentRoute by remember {
+    val currentRoute: State<MainRoutes?> = remember {
         derivedStateOf {
             currentBackStackEntry?.destination?.route?.let { route ->
                 when (route) {
@@ -99,10 +100,20 @@ fun PokemonScaffold() {
         }
     }
 
+    val appBarMenuActions: MutableState<AppBarAction?> = remember {
+        mutableStateOf(null)
+    }
+    val onUpdateAppBarAction: (AppBarAction?) -> Unit = { action ->
+        appBarMenuActions.value = action
+    }
+
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = {
-            PokemonAppBar(title = stringResource(id = R.string.title_main))
+            PokemonAppBar(
+                title = stringResource(id = R.string.title_main),
+                action = appBarMenuActions
+            )
         },
         bottomBar = {
             HomeBottomBar(navController = navController)
@@ -115,25 +126,42 @@ fun PokemonScaffold() {
         ) {
             MainNavHost(
                 navController = navController,
-                startDestination = BottomBarScreen.Home.route
+                startDestination = MainRoutes.Home,
+                currentRoute = currentRoute,
+                onUpdateAppBarAction = onUpdateAppBarAction
             )
         }
     }
 }
 
 @Composable
-fun MainNavHost(
+internal fun MainNavHost(
     navController: NavHostController,
-    startDestination: MainRoutes
+    startDestination: MainRoutes,
+    currentRoute: State<MainRoutes?>,
+    onUpdateAppBarAction: (AppBarAction?) -> Unit = {}
 ) {
     NavHost(
         navController = navController,
         startDestination = startDestination
     ) {
         composable<MainRoutes.Home>() {
-            HomeScreen()
+            HomeScreen(
+                currentRoute = currentRoute,
+                onUpdateAppBarAction = onUpdateAppBarAction
+            )
         }
         composable<MainRoutes.Favorites>() {
+            if (currentRoute.value == MainRoutes.Favorites) {
+                onUpdateAppBarAction(
+                    // Todo update to null
+                    AppBarAction(
+                        imageVector = Icons.Outlined.FavoriteBorder,
+                        onClick = { /*TODO*/ }
+                    )
+                )
+            }
+
             Column(
                 modifier = Modifier.fillMaxSize(),
                 verticalArrangement = Arrangement.Center,
@@ -143,6 +171,16 @@ fun MainNavHost(
             }
         }
         composable<MainRoutes.Settings>() {
+            if (currentRoute.value == MainRoutes.Settings) {
+                onUpdateAppBarAction(
+                    // Todo update to null
+                    AppBarAction(
+                        imageVector = Icons.Outlined.Settings,
+                        onClick = { /*TODO*/ }
+                    )
+                )
+            }
+
             Column(
                 modifier = Modifier.fillMaxSize(),
                 verticalArrangement = Arrangement.Center,

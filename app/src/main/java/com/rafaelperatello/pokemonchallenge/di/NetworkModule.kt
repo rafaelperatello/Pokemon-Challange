@@ -1,8 +1,8 @@
 package com.rafaelperatello.pokemonchallenge.di
 
 import android.content.Context
-import com.rafaelperatello.pokemonchallenge.data.remote.Api
-import com.rafaelperatello.pokemonchallenge.data.remote.PokemonApi
+import com.rafaelperatello.pokemonchallenge.data.repository.remote.Api
+import com.rafaelperatello.pokemonchallenge.data.repository.remote.PokemonApi
 import kotlinx.serialization.json.Json
 import okhttp3.Cache
 import okhttp3.Interceptor
