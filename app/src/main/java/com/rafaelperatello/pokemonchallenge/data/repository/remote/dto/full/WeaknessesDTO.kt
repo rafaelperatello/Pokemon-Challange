@@ -1,4 +1,4 @@
-package com.rafaelperatello.pokemonchallenge.data.remote.dto.full
+package com.rafaelperatello.pokemonchallenge.data.repository.remote.dto.full
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable

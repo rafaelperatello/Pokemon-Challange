@@ -1,7 +1,7 @@
-package com.rafaelperatello.pokemonchallenge.data.remote
+package com.rafaelperatello.pokemonchallenge.data.repository.remote
 
-import com.rafaelperatello.pokemonchallenge.data.remote.dto.full.FullPokemonDTO
-import com.rafaelperatello.pokemonchallenge.data.remote.dto.shallow.ShallowPokemonListDTO
+import com.rafaelperatello.pokemonchallenge.data.repository.remote.dto.full.FullPokemonDTO
+import com.rafaelperatello.pokemonchallenge.data.repository.remote.dto.shallow.ShallowPokemonListDTO
 import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.Path

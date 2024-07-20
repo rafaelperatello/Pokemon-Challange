@@ -1,4 +1,4 @@
-package com.rafaelperatello.pokemonchallenge.data.remote.dto.shallow
+package com.rafaelperatello.pokemonchallenge.data.repository.remote.dto.shallow
 
 import com.rafaelperatello.pokemonchallenge.domain.model.shallow.ShallowPokemonList
 import kotlinx.serialization.SerialName

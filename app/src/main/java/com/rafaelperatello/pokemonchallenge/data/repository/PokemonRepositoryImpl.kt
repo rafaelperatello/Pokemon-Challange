@@ -1,8 +1,8 @@
-package com.rafaelperatello.pokemonchallenge.data
+package com.rafaelperatello.pokemonchallenge.data.repository
 
-import com.rafaelperatello.pokemonchallenge.data.remote.PokemonApi
-import com.rafaelperatello.pokemonchallenge.data.remote.dto.shallow.toShallowPokemonList
-import com.rafaelperatello.pokemonchallenge.data.remote.safeApiCall
+import com.rafaelperatello.pokemonchallenge.data.repository.remote.PokemonApi
+import com.rafaelperatello.pokemonchallenge.data.repository.remote.dto.shallow.toShallowPokemonList
+import com.rafaelperatello.pokemonchallenge.data.repository.remote.safeApiCall
 import com.rafaelperatello.pokemonchallenge.domain.model.shallow.ShallowPokemonList
 import com.rafaelperatello.pokemonchallenge.domain.repository.PokemonRepository
 import com.rafaelperatello.pokemonchallenge.domain.util.DomainResult

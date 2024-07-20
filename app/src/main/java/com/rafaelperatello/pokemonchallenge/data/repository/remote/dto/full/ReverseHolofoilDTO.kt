@@ -1,10 +1,10 @@
-package com.rafaelperatello.pokemonchallenge.data.remote.dto.full
+package com.rafaelperatello.pokemonchallenge.data.repository.remote.dto.full
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-internal data class HolofoilDTO(
+internal data class ReverseHolofoilDTO(
 
     @SerialName("low")
     var low: Double? = null,
@@ -16,7 +16,7 @@ internal data class HolofoilDTO(
     var high: Double? = null,
 
     @SerialName("market")
-    var market: Int? = null,
+    var market: Double? = null,
 
     @SerialName("directLow")
     var directLow: String? = null

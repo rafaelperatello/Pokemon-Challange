@@ -1,4 +1,4 @@
-package com.rafaelperatello.pokemonchallenge.data.remote
+package com.rafaelperatello.pokemonchallenge.data.repository.remote
 
 import android.util.Log
 import com.rafaelperatello.pokemonchallenge.domain.util.DataError.Network
