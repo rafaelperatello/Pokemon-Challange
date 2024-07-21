@@ -39,7 +39,6 @@ private fun provideDataStore(
     context: Context,
     ioContext: CoroutineContext
 ): DataStore<Preferences> {
-
     return PreferenceDataStoreFactory.create(
         scope = CoroutineScope(ioContext + SupervisorJob()),
         migrations = emptyList(),

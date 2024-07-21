@@ -14,6 +14,7 @@
 - Kotlin serialization
 - Coroutines
 - Koin
+- DataStore
 
 ## Architecture
 
@@ -25,6 +26,7 @@
 
 - List of Pokémons
 - Pokémons details
+- Favorites
 
 ## Notes
 
@@ -33,3 +35,4 @@ limiting.
 
 [Pokémon Splash Logo](https://logowik.com/pokemon-logo-vector-31925.html)
 [Pokémon App Icon](https://upload.wikimedia.org/wikipedia/commons/5/53/Pok%C3%A9_Ball_icon.svg)
+[Layout Inspiration](https://dribbble.com/shots/6540871-Pokedex-App)

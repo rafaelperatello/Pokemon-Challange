@@ -91,7 +91,7 @@ fun ContentPreviewPaginationError() {
     }
 }
 
-@Preview()
+@PreviewLightDark()
 @Composable
 fun ContentPreviewError() {
     PokemonChallengeTheme() {
@@ -103,7 +103,7 @@ fun ContentPreviewError() {
     }
 }
 
-@Preview()
+@PreviewLightDark()
 @Composable
 fun ContentPreviewLoading() {
     PokemonChallengeTheme() {

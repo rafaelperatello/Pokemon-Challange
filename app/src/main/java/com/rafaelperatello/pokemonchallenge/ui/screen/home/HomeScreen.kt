@@ -13,6 +13,7 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Apps
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -46,10 +47,9 @@ internal fun HomeScreen(
     onUpdateAppBarAction: (AppBarAction?) -> Unit,
 ) {
     val viewModel: MainViewModel = koinViewModel<MainViewModel>()
-
     var showDialog by remember { mutableStateOf(false) }
 
-    if (currentRoute.value == MainRoutes.Home) {
+    LaunchedEffect(currentRoute.value) {
         onUpdateAppBarAction(
             AppBarAction(
                 imageVector = Icons.Outlined.Apps,
@@ -92,13 +92,18 @@ internal fun HomeContent(
     onPokemonClick: (ShallowPokemon) -> Unit = {},
 ) {
     Surface(
-        modifier = modifier
+        modifier = modifier,
+        color = MaterialTheme.colorScheme.surfaceContainerLow,
     ) {
         val state = viewState.collectAsState()
 
         when (val value = state.value) {
             is MainViewModelState.Loading -> {
-                LoadingWidget(modifier = Modifier.fillMaxSize())
+                LoadingWidget(
+                    modifier = Modifier.fillMaxSize(),
+                    loadingSize = 64.dp,
+                    strokeWidth = 8.dp
+                )
             }
 
             is MainViewModelState.Success -> {
@@ -134,6 +139,8 @@ internal fun HomeContent(
             is MainViewModelState.Error -> {
                 ErrorWidget(
                     modifier = Modifier.fillMaxSize(),
+                    textColor = MaterialTheme.colorScheme.onSurface,
+                    buttonColor = MaterialTheme.colorScheme.tertiary,
                     errorDescription = stringResource(R.string.error_loading_data),
                     errorAction = stringResource(R.string.retry),
                     onRetryClick = onRetryClick
@@ -170,7 +177,7 @@ internal fun PokemonGrid(
         state = lazyGridState,
         modifier = modifier,
         columns = GridCells.Fixed(columnsCount),
-        contentPadding = PaddingValues(3.dp),
+        contentPadding = PaddingValues(16.dp, 24.dp),
         verticalArrangement = Arrangement.spacedBy(3.dp),
         horizontalArrangement = Arrangement.spacedBy(3.dp)
     ) {
@@ -187,28 +194,47 @@ internal fun PokemonGrid(
 
         item() {
             val newListState by listState.collectAsState()
-            Column(
+            val color = when (listState.value) {
+                ListState.ERROR -> MaterialTheme.colorScheme.errorContainer
+                else -> MaterialTheme.colorScheme.surface
+            }
+
+            Surface(
                 modifier = Modifier
                     .aspectRatio(0.72f)
-                    .padding(3.dp)
+                    .padding(3.dp),
+                color = color,
+                shape = MaterialTheme.shapes.small
             ) {
-                when (newListState) {
-                    ListState.PAGINATING -> {
-                        LoadingWidget(
-                            modifier = Modifier.fillMaxSize()
-                        )
-                    }
+                Column(
+                    modifier = Modifier
+                        .aspectRatio(0.72f)
+                        .padding(3.dp)
+                ) {
+                    when (newListState) {
+                        ListState.PAGINATING -> {
+                            LoadingWidget(
+                                modifier = Modifier.fillMaxSize(),
+                                loadingSize = 48.dp,
+                                strokeWidth = 8.dp,
+                                color = MaterialTheme.colorScheme.secondary,
+                                trackColor = MaterialTheme.colorScheme.surfaceVariant
+                            )
+                        }
 
-                    ListState.ERROR -> {
-                        ErrorWidget(
-                            modifier = Modifier.fillMaxSize(),
-                            onRetryClick = onRetryClick,
-                            errorDescription = stringResource(R.string.error_loading_page),
-                            errorAction = stringResource(R.string.retry)
-                        )
-                    }
+                        ListState.ERROR -> {
+                            ErrorWidget(
+                                modifier = Modifier.fillMaxSize(),
+                                textColor = MaterialTheme.colorScheme.onErrorContainer,
+                                buttonColor = MaterialTheme.colorScheme.error,
+                                onRetryClick = onRetryClick,
+                                errorDescription = stringResource(R.string.error_loading_page),
+                                errorAction = stringResource(R.string.retry)
+                            )
+                        }
 
-                    else -> {}
+                        else -> {}
+                    }
                 }
             }
         }

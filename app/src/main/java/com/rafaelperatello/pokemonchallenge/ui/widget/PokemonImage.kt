@@ -37,13 +37,15 @@ internal fun PokemonImage(
 ) {
     Surface(
         tonalElevation = 3.dp,
-        modifier = modifier.clickable {
-            onPokemonClick(pokemon)
-        },
+        color = MaterialTheme.colorScheme.surfaceContainer,
+        modifier = modifier
+            .clickable {
+                onPokemonClick(pokemon)
+
+            },
         shape = MaterialTheme.shapes.small
     ) {
         val context = LocalContext.current
-        val placeholder = R.drawable.image_placeholder
         val imageUrl = pokemon.images.small ?: ""
 
         val imageRequest = ImageRequest.Builder(context)
@@ -51,9 +53,6 @@ internal fun PokemonImage(
             .dispatcher(Dispatchers.IO)
             .memoryCacheKey(imageUrl)
             .diskCacheKey(imageUrl)
-            .placeholder(placeholder)
-            .error(placeholder)
-            .fallback(placeholder)
             .diskCachePolicy(CachePolicy.ENABLED)
             .memoryCachePolicy(CachePolicy.ENABLED)
             .build()

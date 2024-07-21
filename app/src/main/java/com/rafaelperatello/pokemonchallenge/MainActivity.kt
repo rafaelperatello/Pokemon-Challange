@@ -5,11 +5,15 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.annotation.Keep
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
@@ -22,13 +26,17 @@ import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Settings
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.derivedStateOf
@@ -40,10 +48,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.coroutineScope
-import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -76,61 +82,100 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             PokemonChallengeTheme {
-                PokemonScaffold()
+                val navController = rememberNavController()
+                val currentBackStackEntry by navController.currentBackStackEntryAsState()
+                val currentRoute: State<MainRoutes> = remember {
+                    derivedStateOf {
+                        currentBackStackEntry?.destination?.route?.let { route ->
+                            when (route) {
+                                MainRoutes.Home::class.qualifiedName -> MainRoutes.Home
+                                MainRoutes.Favorites::class.qualifiedName -> MainRoutes.Favorites
+                                MainRoutes.Settings::class.qualifiedName -> MainRoutes.Settings
+                                else -> null
+                            }
+                        } ?: MainRoutes.Home
+                    }
+                }
+
+                val appBarMenuActions: MutableState<AppBarAction?> = remember {
+                    mutableStateOf(null)
+                }
+                val onUpdateAppBarAction: (AppBarAction?) -> Unit = { action ->
+                    appBarMenuActions.value = action
+                }
+
+                PokemonScaffold(
+                    navController = navController,
+                    currentRoute = currentRoute,
+                    appBarMenuActions = appBarMenuActions
+                ) { innerPadding ->
+                    Column(
+                        modifier = Modifier
+                            .padding(innerPadding)
+                            .fillMaxSize()
+                    ) {
+                        MainNavHost(
+                            navController = navController,
+                            startDestination = MainRoutes.Home,
+                            currentRoute = currentRoute,
+                            onUpdateAppBarAction = onUpdateAppBarAction
+                        )
+                    }
+                }
             }
         }
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PokemonScaffold() {
-    val navController = rememberNavController()
-
-    val currentBackStackEntry by navController.currentBackStackEntryAsState()
-    val currentRoute: State<MainRoutes?> = remember {
-        derivedStateOf {
-            currentBackStackEntry?.destination?.route?.let { route ->
-                when (route) {
-                    MainRoutes.Home::class.qualifiedName -> MainRoutes.Home
-                    MainRoutes.Favorites::class.qualifiedName -> MainRoutes.Favorites
-                    MainRoutes.Settings::class.qualifiedName -> MainRoutes.Settings
-                    else -> null
-                }
-            }
-        }
-    }
-
-    val appBarMenuActions: MutableState<AppBarAction?> = remember {
-        mutableStateOf(null)
-    }
-    val onUpdateAppBarAction: (AppBarAction?) -> Unit = { action ->
-        appBarMenuActions.value = action
-    }
-
+internal fun PokemonScaffold(
+    navController: NavHostController = rememberNavController(),
+    currentRoute: State<MainRoutes> = remember { mutableStateOf(MainRoutes.Home) },
+    appBarMenuActions: State<AppBarAction?> = remember { mutableStateOf(null) },
+    body: @Composable (PaddingValues) -> Unit = {}
+) {
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = {
+            val isDarkTheme = isSystemInDarkTheme()
+            val colors =
+                if (isDarkTheme) {
+                    TopAppBarDefaults.topAppBarColors(
+                        containerColor = MaterialTheme.colorScheme.primary,
+                        titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                        actionIconContentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                    )
+                } else {
+                    TopAppBarDefaults.topAppBarColors(
+                        containerColor = MaterialTheme.colorScheme.primary,
+                        titleContentColor = MaterialTheme.colorScheme.tertiaryContainer,
+                        actionIconContentColor = MaterialTheme.colorScheme.tertiaryContainer
+                    )
+                }
+
             PokemonAppBar(
                 title = stringResource(id = R.string.title_main),
-                action = appBarMenuActions
+                action = appBarMenuActions,
+                colors = colors
             )
         },
         bottomBar = {
-            HomeBottomBar(navController = navController)
-        }
-    ) { innerPadding ->
-        Column(
-            modifier = Modifier
-                .padding(innerPadding)
-                .fillMaxSize()
-        ) {
-            MainNavHost(
-                navController = navController,
-                startDestination = MainRoutes.Home,
+            HomeBottomBar(
                 currentRoute = currentRoute,
-                onUpdateAppBarAction = onUpdateAppBarAction
+                onItemClick = { route: MainRoutes ->
+                    navController.navigate(route) {
+                        popUpTo(navController.graph.findStartDestination().id) {
+                            saveState = true
+                        }
+                        launchSingleTop = true
+                        restoreState = true
+                    }
+                }
             )
         }
+    ) { innerPadding ->
+        body(innerPadding)
     }
 }
 
@@ -138,7 +183,7 @@ fun PokemonScaffold() {
 internal fun MainNavHost(
     navController: NavHostController,
     startDestination: MainRoutes,
-    currentRoute: State<MainRoutes?>,
+    currentRoute: State<MainRoutes>,
     onUpdateAppBarAction: (AppBarAction?) -> Unit = {}
 ) {
     NavHost(
@@ -152,8 +197,10 @@ internal fun MainNavHost(
             )
         }
         composable<MainRoutes.Favorites>() {
-            if (currentRoute.value == MainRoutes.Favorites) {
-                onUpdateAppBarAction(null)
+            LaunchedEffect(currentRoute.value) {
+                if (currentRoute.value == MainRoutes.Favorites) {
+                    onUpdateAppBarAction(null)
+                }
             }
 
             Column(
@@ -165,8 +212,10 @@ internal fun MainNavHost(
             }
         }
         composable<MainRoutes.Settings>() {
-            if (currentRoute.value == MainRoutes.Settings) {
-                onUpdateAppBarAction(null)
+            LaunchedEffect(currentRoute.value) {
+                if (currentRoute.value == MainRoutes.Favorites) {
+                    onUpdateAppBarAction(null)
+                }
             }
 
             Column(
@@ -182,34 +231,29 @@ internal fun MainNavHost(
 
 @Composable
 private fun HomeBottomBar(
-    navController: NavHostController
+    currentRoute: State<MainRoutes>,
+    onItemClick: (MainRoutes) -> Unit = {}
 ) {
-    val currentDestination = navController.currentBackStackEntryAsState().value?.destination
-
     NavigationBar(
-        containerColor = MaterialTheme.colorScheme.primaryContainer,
-        contentColor = MaterialTheme.colorScheme.primary,
-        modifier = Modifier.windowInsetsPadding(
-            WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal)
-        )
+        containerColor = MaterialTheme.colorScheme.surfaceContainer,
+        tonalElevation = 3.dp,
+        modifier = Modifier
+            .windowInsetsPadding(
+                WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal)
+            )
+            .height(100.dp)
     ) {
         mainScreens.forEach { destination ->
-            val selected =
-                currentDestination?.hierarchy?.any {
-                    it.route == destination.route::class.qualifiedName.orEmpty()
-                } == true
+            val selected = currentRoute.value == destination.route
 
             NavigationBarItem(
+                modifier = Modifier.defaultMinSize(minWidth = 56.dp),
                 selected = selected,
-                onClick = {
-                    navController.navigate(destination.route) {
-                        popUpTo(navController.graph.findStartDestination().id) {
-                            saveState = true
-                        }
-                        launchSingleTop = true
-                        restoreState = true
-                    }
-                },
+                onClick = { onItemClick(destination.route) },
+                colors = NavigationBarItemDefaults.colors().copy(
+                    selectedIndicatorColor = MaterialTheme.colorScheme.primaryContainer,
+                    selectedIconColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                ),
                 icon = {
                     val icon =
                         if (selected) destination.selectedIcon
@@ -217,14 +261,8 @@ private fun HomeBottomBar(
 
                     Icon(
                         imageVector = icon,
-                        modifier = Modifier.size(16.dp),
+                        modifier = Modifier.size(24.dp),
                         contentDescription = null
-                    )
-                },
-                label = {
-                    Text(
-                        text = stringResource(id = destination.labelRes),
-                        fontSize = 10.sp
                     )
                 }
             )

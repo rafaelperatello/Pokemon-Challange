@@ -1,7 +1,7 @@
 <resources>
-    <string name="app_name">Pokemon Challenge</string>
+    <string name="app_name">Pokémon Challenge</string>
 
-    <string name="title_main">Pokemon Cards</string>
+    <string name="title_main">Pokémon Cards</string>
 
     <string name="error_loading_data">Error loading data</string>
     <string name="error_loading_page">Error loading page</string>

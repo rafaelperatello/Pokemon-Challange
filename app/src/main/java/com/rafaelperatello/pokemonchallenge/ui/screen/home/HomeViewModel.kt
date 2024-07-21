@@ -38,7 +38,7 @@ internal class MainViewModel(
 
     val gridStyle: StateFlow<GridStyle> = appSettings.gridStyle.stateIn(
         viewModelScope,
-        started = SharingStarted.WhileSubscribed(),
+        started = SharingStarted.Eagerly,
         initialValue = GridStyle.SMALL
     )
 
@@ -63,6 +63,7 @@ internal class MainViewModel(
 
                     is DomainResult.Error -> {
                         // Todo handle different error types
+                        // Todo show snack bar on internet error
                         _state.value = MainViewModelState.Error
                     }
                 }
