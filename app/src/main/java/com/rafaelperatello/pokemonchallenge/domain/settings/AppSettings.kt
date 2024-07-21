@@ -1,11 +1,11 @@
 package com.rafaelperatello.pokemonchallenge.domain.settings
 
-import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.Flow
 
 internal interface AppSettings {
 
     // region Grid Style
-    val gridStyle: SharedFlow<GridStyle>
+    val gridStyle: Flow<GridStyle>
 
     suspend fun setGridStyle(gridStyle: GridStyle)
 
@@ -14,8 +14,8 @@ internal interface AppSettings {
 
 }
 
-internal enum class GridStyle {
-    SMALL,
-    MEDIUM,
-    LARGE
+internal enum class GridStyle(val id: Int) {
+    SMALL(0),
+    MEDIUM(1),
+    LARGE(2)
 }

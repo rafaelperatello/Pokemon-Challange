@@ -80,6 +80,8 @@ dependencies {
     implementation(libs.retrofit.converter.kotlin.serialization)
     implementation(libs.kotlin.serialization.json)
 
+    implementation(libs.data.store)
+
     implementation(libs.coroutines.android)
 
     debugImplementation(libs.androidx.ui.tooling)

@@ -153,13 +153,7 @@ internal fun MainNavHost(
         }
         composable<MainRoutes.Favorites>() {
             if (currentRoute.value == MainRoutes.Favorites) {
-                onUpdateAppBarAction(
-                    // Todo update to null
-                    AppBarAction(
-                        imageVector = Icons.Outlined.FavoriteBorder,
-                        onClick = { /*TODO*/ }
-                    )
-                )
+                onUpdateAppBarAction(null)
             }
 
             Column(
@@ -172,13 +166,7 @@ internal fun MainNavHost(
         }
         composable<MainRoutes.Settings>() {
             if (currentRoute.value == MainRoutes.Settings) {
-                onUpdateAppBarAction(
-                    // Todo update to null
-                    AppBarAction(
-                        imageVector = Icons.Outlined.Settings,
-                        onClick = { /*TODO*/ }
-                    )
-                )
+                onUpdateAppBarAction(null)
             }
 
             Column(
