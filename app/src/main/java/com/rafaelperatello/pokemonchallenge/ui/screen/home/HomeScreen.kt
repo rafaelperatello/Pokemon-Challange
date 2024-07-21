@@ -93,7 +93,7 @@ internal fun HomeContent(
 ) {
     Surface(
         modifier = modifier,
-        color = MaterialTheme.colorScheme.surfaceContainerLow,
+        color = MaterialTheme.colorScheme.background,
     ) {
         val state = viewState.collectAsState()
 

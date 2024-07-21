@@ -1,12 +1,17 @@
 package com.rafaelperatello.pokemonchallenge.ui.theme
 
+import android.app.Activity
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.platform.LocalView
+import androidx.core.view.WindowCompat
 
 private val lightScheme = lightColorScheme(
     primary = primaryLight,
@@ -264,6 +269,22 @@ fun PokemonChallengeTheme(
     MaterialTheme(
         colorScheme = colorScheme,
         typography = AppTypography,
-        content = content
+        content = {
+            val view = LocalView.current
+            val color = MaterialTheme.colorScheme.primary.toArgb()
+            if (!view.isInEditMode) {
+                SideEffect {
+                    val window = (view.context as Activity).window
+                    window.statusBarColor = color
+                    window.navigationBarColor = color
+                    WindowCompat.getInsetsController(window, view).apply {
+                        isAppearanceLightStatusBars = darkTheme
+                        isAppearanceLightNavigationBars = darkTheme
+                    }
+                }
+            }
+
+            content()
+        }
     )
 }

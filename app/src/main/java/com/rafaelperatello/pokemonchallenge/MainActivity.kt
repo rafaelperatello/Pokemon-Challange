@@ -80,6 +80,7 @@ class MainActivity : ComponentActivity() {
         }
 
         enableEdgeToEdge()
+
         setContent {
             PokemonChallengeTheme {
                 val navController = rememberNavController()
@@ -127,7 +128,6 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun PokemonScaffold(
     navController: NavHostController = rememberNavController(),
@@ -137,31 +137,9 @@ internal fun PokemonScaffold(
 ) {
     Scaffold(
         modifier = Modifier.fillMaxSize(),
-        topBar = {
-            val isDarkTheme = isSystemInDarkTheme()
-            val colors =
-                if (isDarkTheme) {
-                    TopAppBarDefaults.topAppBarColors(
-                        containerColor = MaterialTheme.colorScheme.primary,
-                        titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                        actionIconContentColor = MaterialTheme.colorScheme.onPrimaryContainer
-                    )
-                } else {
-                    TopAppBarDefaults.topAppBarColors(
-                        containerColor = MaterialTheme.colorScheme.primary,
-                        titleContentColor = MaterialTheme.colorScheme.tertiaryContainer,
-                        actionIconContentColor = MaterialTheme.colorScheme.tertiaryContainer
-                    )
-                }
-
-            PokemonAppBar(
-                title = stringResource(id = R.string.title_main),
-                action = appBarMenuActions,
-                colors = colors
-            )
-        },
+        topBar = { MainAppBar(appBarMenuActions) },
         bottomBar = {
-            HomeBottomBar(
+            MainBottomBar(
                 currentRoute = currentRoute,
                 onItemClick = { route: MainRoutes ->
                     navController.navigate(route) {
@@ -177,6 +155,32 @@ internal fun PokemonScaffold(
     ) { innerPadding ->
         body(innerPadding)
     }
+}
+
+@Composable
+@OptIn(ExperimentalMaterial3Api::class)
+internal fun MainAppBar(appBarMenuActions: State<AppBarAction?>) {
+    val isDarkTheme = isSystemInDarkTheme()
+    val colors =
+        if (isDarkTheme) {
+            TopAppBarDefaults.topAppBarColors(
+                containerColor = MaterialTheme.colorScheme.primary,
+                titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                actionIconContentColor = MaterialTheme.colorScheme.onPrimaryContainer
+            )
+        } else {
+            TopAppBarDefaults.topAppBarColors(
+                containerColor = MaterialTheme.colorScheme.primary,
+                titleContentColor = MaterialTheme.colorScheme.tertiaryContainer,
+                actionIconContentColor = MaterialTheme.colorScheme.tertiaryContainer
+            )
+        }
+
+    PokemonAppBar(
+        title = stringResource(id = R.string.title_main),
+        action = appBarMenuActions,
+        colors = colors
+    )
 }
 
 @Composable
@@ -230,13 +234,13 @@ internal fun MainNavHost(
 }
 
 @Composable
-private fun HomeBottomBar(
+private fun MainBottomBar(
     currentRoute: State<MainRoutes>,
     onItemClick: (MainRoutes) -> Unit = {}
 ) {
+    // Todo make it smaller
     NavigationBar(
         containerColor = MaterialTheme.colorScheme.surfaceContainer,
-        tonalElevation = 3.dp,
         modifier = Modifier
             .windowInsetsPadding(
                 WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal)
