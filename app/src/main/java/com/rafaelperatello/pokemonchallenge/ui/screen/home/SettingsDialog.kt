@@ -1,5 +1,6 @@
 package com.rafaelperatello.pokemonchallenge.ui.screen.home
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -20,6 +21,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
@@ -75,7 +77,9 @@ internal fun HomeSettingsDialog(
                     modifier = Modifier.fillMaxWidth(),
                 ) {
                     radioOptions.forEach { gridStyle ->
-                        Row(verticalAlignment = Alignment.CenterVertically) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
                             RadioButton(
                                 selected = (gridStyle == selectedStyle),
                                 onClick = { selectedStyle = gridStyle }
@@ -83,7 +87,12 @@ internal fun HomeSettingsDialog(
                             Text(
                                 text = stringResource(id = gridStyle.toStringRes()),
                                 style = MaterialTheme.typography.bodyMedium,
-                                modifier = Modifier.padding(start = 8.dp)
+                                modifier = Modifier
+                                    .clip(MaterialTheme.shapes.small)
+                                    .clickable {
+                                        selectedStyle = gridStyle
+                                    }
+                                    .padding(8.dp)
                             )
                         }
                     }
