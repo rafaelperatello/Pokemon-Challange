@@ -15,6 +15,7 @@
 - Coroutines
 - Koin
 - DataStore
+- Room
 
 ## Architecture
 

@@ -17,11 +17,23 @@ import java.util.concurrent.TimeUnit
 
 internal val networkModule = module {
 
-    single { provideHttpClient(androidContext()) }
+    single {
+        provideHttpClient(
+            context = androidContext()
+        )
+    }
 
-    single { provideRetrofit(get()) }
+    single {
+        provideRetrofit(
+            okHttpClient = get()
+        )
+    }
 
-    single { provideService(get()) }
+    single {
+        provideService(
+            retrofit = get()
+        )
+    }
 }
 
 private fun provideHttpClient(context: Context): OkHttpClient {

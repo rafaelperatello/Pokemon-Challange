@@ -1,14 +1,14 @@
-package com.rafaelperatello.pokemonchallenge.data.repository.remote.dto.shallow
+package com.rafaelperatello.pokemonchallenge.data.repository.remote.dto
 
-import com.rafaelperatello.pokemonchallenge.domain.model.shallow.ShallowPokemonList
+import com.rafaelperatello.pokemonchallenge.domain.model.PokemonList
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-internal data class ShallowPokemonListDTO(
+internal data class PokemonListDTO<T>(
 
     @SerialName("data")
-    var data: ArrayList<ShallowPokemonDTO> = arrayListOf(),
+    var data: ArrayList<T> = arrayListOf(),
 
     @SerialName("page")
     var page: Int,
@@ -23,8 +23,8 @@ internal data class ShallowPokemonListDTO(
     var totalCount: Int
 )
 
-internal fun ShallowPokemonListDTO.toShallowPokemonList() = ShallowPokemonList(
-    data = data.map { it.toShallowPokemon() },
+internal fun <T, R> PokemonListDTO<T>.toTypedDTO(mapper: (T) -> R) = PokemonList<R>(
+    data = data.map { mapper(it) },
     page = page,
     pageSize = pageSize,
     count = count,

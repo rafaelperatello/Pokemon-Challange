@@ -13,12 +13,32 @@ internal data class ShallowPokemonDTO(
     @SerialName("name")
     var name: String,
 
+    @SerialName("number")
+    val number: String,
+
+    @SerialName("types")
+    var types: ArrayList<String> = arrayListOf(),
+
+    @SerialName("supertype")
+    var supertype: String? = null,
+
+    @SerialName("subtypes")
+    var subtypes: ArrayList<String> = arrayListOf(),
+
+    @SerialName("set")
+    var setDTO: ShallowSetDTO? = ShallowSetDTO(),
+
+    @SerialName("tcgplayer")
+    var tcgplayer: ShallowPlayerDTO? = ShallowPlayerDTO(),
+
     @SerialName("images")
-    var images: ImagesDTO = ImagesDTO()
+    var images: ShallowImagesDTO = ShallowImagesDTO()
 )
 
 internal fun ShallowPokemonDTO.toShallowPokemon() = ShallowPokemon(
     id = id,
     name = name,
-    images = images.toImages()
+    number = number,
+    imageSmall = images.small,
+    imageLarge = images.large,
 )
