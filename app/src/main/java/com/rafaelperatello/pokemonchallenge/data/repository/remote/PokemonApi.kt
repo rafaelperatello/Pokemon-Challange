@@ -18,7 +18,8 @@ internal interface PokemonApi {
 
     @GET("cards?select=id,name,number,images,types,subtypes,supertype,set")
     suspend fun getCardsMedium(
-        @Query("page") currentPage: Int
+        @Query("page") currentPage: Int,
+        @Query("pageSize") pageSize: Int
     ): Response<PokemonListDTO<MediumPokemonDTO>>
 
     @GET("cards/{id}")

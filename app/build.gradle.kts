@@ -86,6 +86,7 @@ dependencies {
     implementation(libs.coroutines.android)
 
     implementation(libs.room.database)
+    implementation(libs.room.paging)
     ksp(libs.room.compiler)
 
     debugImplementation(libs.androidx.ui.tooling)

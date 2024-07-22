@@ -19,7 +19,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -29,6 +28,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.FilterQuality
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.paging.LoadState
+import androidx.paging.compose.LazyPagingItems
+import androidx.paging.compose.collectAsLazyPagingItems
 import com.rafaelperatello.pokemonchallenge.MainRoutes
 import com.rafaelperatello.pokemonchallenge.R
 import com.rafaelperatello.pokemonchallenge.domain.model.shallow.ShallowPokemon
@@ -69,13 +71,13 @@ internal fun HomeScreen(
         )
     }
 
+    val listState = viewModel.listState.collectAsLazyPagingItems()
+
     HomeContent(
         modifier = modifier,
-        viewState = viewModel.state,
-        listState = viewModel.listState,
+        listState = listState,
         gridStyleFlow = viewModel.gridStyle,
-        onRetryClick = { viewModel.onRetryClick() },
-        onFetchNextPage = { viewModel.fetchNextPage() },
+        onRetryClick = { listState.retry() },
         onPokemonClick = { pokemon ->
             // Todo navigate to details
         }
@@ -85,21 +87,19 @@ internal fun HomeScreen(
 @Composable
 internal fun HomeContent(
     modifier: Modifier = Modifier,
-    viewState: StateFlow<MainViewModelState>,
-    listState: StateFlow<ListState>,
+    listState: LazyPagingItems<ShallowPokemon>,
     gridStyleFlow: StateFlow<GridStyle>,
     onRetryClick: () -> Unit = {},
-    onFetchNextPage: () -> Unit = {},
     onPokemonClick: (ShallowPokemon) -> Unit = {}
 ) {
     Surface(
         modifier = modifier,
         color = MaterialTheme.colorScheme.background
     ) {
-        val state = viewState.collectAsState()
+        val lazyGridState = rememberLazyGridState()
 
-        when (val value = state.value) {
-            is MainViewModelState.Loading -> {
+        when (listState.loadState.refresh) {
+            is LoadState.Loading -> {
                 LoadingWidget(
                     modifier = Modifier.fillMaxSize(),
                     loadingSize = 64.dp,
@@ -107,43 +107,24 @@ internal fun HomeContent(
                 )
             }
 
-            is MainViewModelState.Success -> {
-                val lazyGridState = rememberLazyGridState()
-
-                val shouldStartPaginate = remember {
-                    derivedStateOf {
-                        val lastVisibleItemIndex =
-                            lazyGridState.layoutInfo.visibleItemsInfo.lastOrNull()?.index
-                        val totalItemsCount = lazyGridState.layoutInfo.totalItemsCount
-
-                        (lastVisibleItemIndex ?: -10) >= totalItemsCount - 10
-                    }
-                }
-
-                LaunchedEffect(key1 = shouldStartPaginate.value) {
-                    if (shouldStartPaginate.value && listState.value == ListState.IDLE) {
-                        onFetchNextPage()
-                    }
-                }
-
-                PokemonGrid(
-                    modifier = Modifier.fillMaxSize(),
-                    lazyGridState = lazyGridState,
-                    listState = listState,
-                    gridStyleFlow = gridStyleFlow,
-                    pokemonList = value.pokemonList,
-                    onPokemonClick = onPokemonClick,
-                    onRetryClick = onFetchNextPage
-                )
-            }
-
-            is MainViewModelState.Error -> {
+            is LoadState.Error -> {
                 ErrorWidget(
                     modifier = Modifier.fillMaxSize(),
                     textColor = MaterialTheme.colorScheme.onSurface,
                     buttonColor = MaterialTheme.colorScheme.tertiary,
                     errorDescription = stringResource(R.string.error_loading_data),
                     errorAction = stringResource(R.string.retry),
+                    onRetryClick = onRetryClick
+                )
+            }
+
+            else -> {
+                PokemonGrid(
+                    modifier = Modifier.fillMaxSize(),
+                    lazyGridState = lazyGridState,
+                    listState = listState,
+                    gridStyleFlow = gridStyleFlow,
+                    onPokemonClick = onPokemonClick,
                     onRetryClick = onRetryClick
                 )
             }
@@ -156,9 +137,8 @@ internal fun HomeContent(
 internal fun PokemonGrid(
     modifier: Modifier = Modifier,
     lazyGridState: LazyGridState,
-    listState: StateFlow<ListState>,
+    listState: LazyPagingItems<ShallowPokemon>,
     gridStyleFlow: StateFlow<GridStyle>,
-    pokemonList: List<ShallowPokemon>,
     onPokemonClick: (ShallowPokemon) -> Unit = {},
     onRetryClick: () -> Unit = {}
 ) {
@@ -191,22 +171,21 @@ internal fun PokemonGrid(
         verticalArrangement = Arrangement.spacedBy(3.dp),
         horizontalArrangement = Arrangement.spacedBy(3.dp)
     ) {
-        items(pokemonList.size, key = { it }) {
+        items(listState.itemCount, key = { it }) {
             PokemonImage(
                 modifier = Modifier
                     .aspectRatio(0.72f)
                     .padding(3.dp),
                 filterQuality = filterQuality,
-                pokemon = pokemonList[it],
+                pokemon = listState[it]!!,
                 position = it,
                 onPokemonClick = onPokemonClick
             )
         }
 
         item() {
-            val newListState by listState.collectAsState()
-            val color = when (listState.value) {
-                ListState.ERROR -> MaterialTheme.colorScheme.errorContainer
+            val color = when (listState.loadState.append) {
+                is LoadState.Error -> MaterialTheme.colorScheme.errorContainer
                 else -> MaterialTheme.colorScheme.surface
             }
 
@@ -222,8 +201,8 @@ internal fun PokemonGrid(
                         .aspectRatio(0.72f)
                         .padding(3.dp)
                 ) {
-                    when (newListState) {
-                        ListState.PAGINATING -> {
+                    when (listState.loadState.append) {
+                        is LoadState.Loading -> {
                             LoadingWidget(
                                 modifier = Modifier.fillMaxSize(),
                                 loadingSize = 48.dp,
@@ -233,7 +212,7 @@ internal fun PokemonGrid(
                             )
                         }
 
-                        ListState.ERROR -> {
+                        is LoadState.Error -> {
                             ErrorWidget(
                                 modifier = Modifier.fillMaxSize(),
                                 textColor = MaterialTheme.colorScheme.onErrorContainer,
@@ -244,7 +223,9 @@ internal fun PokemonGrid(
                             )
                         }
 
-                        else -> {}
+                        else -> {
+                            Unit
+                        }
                     }
                 }
             }

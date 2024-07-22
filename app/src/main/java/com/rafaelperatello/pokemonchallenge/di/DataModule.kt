@@ -8,6 +8,7 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.preferencesDataStoreFile
 import androidx.room.Room
+import com.rafaelperatello.pokemonchallenge.data.repository.PokemonRemotePagingSource
 import com.rafaelperatello.pokemonchallenge.data.repository.PokemonRepositoryImpl
 import com.rafaelperatello.pokemonchallenge.data.repository.local.PokemonDatabase
 import com.rafaelperatello.pokemonchallenge.data.repository.local.PokemonDatabaseConstants
@@ -28,11 +29,16 @@ internal object DataModuleConstants {
 
 internal val dataModule = module {
 
+    single {
+        PokemonRemotePagingSource(
+            pokemonService = get(),
+            ioContext = get(named(IO_CONTEXT))
+        )
+    }
+
     single<PokemonRepository> {
         PokemonRepositoryImpl(
-            pokemonService = get(),
-            pokemonDb = get(),
-            ioContext = get(named(IO_CONTEXT))
+            pokemonPagingSource = get()
         )
     }
 

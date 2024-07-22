@@ -1,12 +1,11 @@
 package com.rafaelperatello.pokemonchallenge.domain.repository
 
-import com.rafaelperatello.pokemonchallenge.domain.model.shallow.ShallowPokemonList
-import com.rafaelperatello.pokemonchallenge.domain.util.DomainResult
+import androidx.paging.PagingData
+import com.rafaelperatello.pokemonchallenge.domain.model.shallow.ShallowPokemon
+import kotlinx.coroutines.flow.Flow
 
 internal interface PokemonRepository {
 
-    suspend fun getPokemonList(page: Int): DomainResult<ShallowPokemonList>
+    suspend fun getPokemonListShallow(): Flow<PagingData<ShallowPokemon>>
 
-    // Todo full entity
-    suspend fun getPokemonDetails(id: String): DomainResult<Unit>
 }

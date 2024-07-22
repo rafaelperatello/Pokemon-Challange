@@ -52,6 +52,7 @@ splash-screen = { group = "androidx.core", name = "core-splashscreen", version.r
 data-store = { group = "androidx.datastore", name = "datastore-preferences", version.ref = "dataStore" }
 room-database = { group = "androidx.room", name = "room-runtime", version.ref = "roomDatabase" }
 room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "roomDatabase" }
+room-paging = { group = "androidx.room", name = "room-paging", version.ref = "roomDatabase" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

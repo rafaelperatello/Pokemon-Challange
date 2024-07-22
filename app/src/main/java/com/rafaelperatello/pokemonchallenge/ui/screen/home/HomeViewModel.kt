@@ -4,37 +4,27 @@ import android.util.Log
 import androidx.compose.runtime.Immutable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.paging.PagingData
+import androidx.paging.cachedIn
 import com.rafaelperatello.pokemonchallenge.domain.model.shallow.ShallowPokemon
 import com.rafaelperatello.pokemonchallenge.domain.repository.PokemonRepository
 import com.rafaelperatello.pokemonchallenge.domain.settings.AppSettings
 import com.rafaelperatello.pokemonchallenge.domain.settings.GridStyle
-import com.rafaelperatello.pokemonchallenge.domain.util.DomainResult
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
 
 internal class MainViewModel(
     private val repository: PokemonRepository,
     private val appSettings: AppSettings
 ) : ViewModel() {
 
-    private val mutex = Mutex()
-
-    private val _state: MutableStateFlow<MainViewModelState> =
-        MutableStateFlow(MainViewModelState.Loading)
-    val state: StateFlow<MainViewModelState>
-        get() = _state.asStateFlow()
-
-    private val _listState: MutableStateFlow<ListState> = MutableStateFlow(ListState.IDLE)
-    val listState: StateFlow<ListState>
-        get() = _listState.asStateFlow()
-
+    private val _listState: MutableStateFlow<PagingData<ShallowPokemon>> =
+        MutableStateFlow(value = PagingData.empty())
+    val listState: StateFlow<PagingData<ShallowPokemon>> get() = _listState
 
     val gridStyle: StateFlow<GridStyle> = appSettings.gridStyle.stateIn(
         viewModelScope,
@@ -43,76 +33,18 @@ internal class MainViewModel(
     )
 
     init {
-        fetchInitialPage()
+        fetchData()
     }
 
-    private fun fetchInitialPage() {
+    private fun fetchData() = viewModelScope.launch {
         viewModelScope.launch {
-            mutex.withLock {
-                delay(200) // Todo remove this delay
-
-                val result = repository.getPokemonList(1)
-                Log.d("MainViewModel", "fetchInitialPage result: $result")
-
-                when (result) {
-                    is DomainResult.Success -> {
-                        val pokemonList = result.data.data
-                        val currentPage = result.data.page
-                        _state.value = MainViewModelState.Success(pokemonList, currentPage)
-                    }
-
-                    is DomainResult.Error -> {
-                        // Todo handle different error types
-                        // Todo show snack bar on internet error
-                        _state.value = MainViewModelState.Error
-                    }
+            repository.getPokemonListShallow()
+                .distinctUntilChanged()
+                .cachedIn(viewModelScope)
+                .collect {
+                    Log.d("MainViewModel", "fetchData: $it")
+                    _listState.value = it
                 }
-            }
-        }
-    }
-
-    fun onRetryClick() {
-        if (_state.value is MainViewModelState.Error) {
-            _state.value = MainViewModelState.Loading
-            fetchInitialPage()
-        }
-    }
-
-    fun fetchNextPage() {
-        val currentListState = _listState.value
-        Log.d("MainViewModel", "fetchNextPage currentListState: $currentListState")
-
-        if (currentListState != ListState.IDLE && currentListState != ListState.ERROR) return
-
-        viewModelScope.launch {
-            mutex.withLock {
-                val localState = _state.value as? MainViewModelState.Success ?: return@withLock
-                val nextPage = localState.currentPage + 1
-
-                _listState.value = ListState.PAGINATING
-
-                delay(2000) // Todo remove this delay
-
-                val result = repository.getPokemonList(nextPage)
-                Log.d("MainViewModel", "fetchNextPage result: $result")
-
-                when (result) {
-                    is DomainResult.Success -> {
-                        val pokemonList = result.data.data
-                        val newCurrentPage = result.data.page
-                        val newList = localState.pokemonList + pokemonList
-                        _state.value = MainViewModelState.Success(newList, newCurrentPage)
-
-                        _listState.value =
-                            if (newList.size < result.data.totalCount) ListState.IDLE
-                            else ListState.PAGINATION_EXHAUST
-                    }
-
-                    is DomainResult.Error -> {
-                        _listState.value = ListState.ERROR
-                    }
-                }
-            }
         }
     }
 
@@ -121,24 +53,4 @@ internal class MainViewModel(
             appSettings.setGridStyle(style)
         }
     }
-}
-
-internal sealed class MainViewModelState {
-
-    data object Loading : MainViewModelState()
-
-    data object Error : MainViewModelState()
-
-    @Immutable
-    data class Success(
-        val pokemonList: List<ShallowPokemon>,
-        val currentPage: Int
-    ) : MainViewModelState()
-}
-
-internal enum class ListState {
-    IDLE,
-    PAGINATING,
-    ERROR,
-    PAGINATION_EXHAUST
 }
