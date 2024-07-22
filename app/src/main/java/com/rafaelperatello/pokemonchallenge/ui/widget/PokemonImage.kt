@@ -24,13 +24,13 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import coil.request.CachePolicy
 import coil.request.ImageRequest
-import com.rafaelperatello.pokemonchallenge.R
 import com.rafaelperatello.pokemonchallenge.domain.model.shallow.ShallowPokemon
 import kotlinx.coroutines.Dispatchers
 
 @Composable
 internal fun PokemonImage(
     modifier: Modifier = Modifier,
+    filterQuality: FilterQuality = FilterQuality.Low,
     pokemon: ShallowPokemon,
     position: Int,
     onPokemonClick: (ShallowPokemon) -> Unit = {}
@@ -41,12 +41,11 @@ internal fun PokemonImage(
         modifier = modifier
             .clickable {
                 onPokemonClick(pokemon)
-
             },
         shape = MaterialTheme.shapes.small
     ) {
         val context = LocalContext.current
-        val imageUrl = pokemon.images.small ?: ""
+        val imageUrl = pokemon.imageSmall ?: ""
 
         val imageRequest = ImageRequest.Builder(context)
             .data(imageUrl)
@@ -65,7 +64,7 @@ internal fun PokemonImage(
                 contentDescription = pokemon.name,
                 contentScale = ContentScale.Fit,
                 modifier = Modifier.fillMaxSize(),
-                filterQuality = FilterQuality.Low
+                filterQuality = filterQuality
             )
 
             Text(

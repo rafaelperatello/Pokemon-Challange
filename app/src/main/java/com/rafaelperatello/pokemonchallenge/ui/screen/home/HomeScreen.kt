@@ -26,6 +26,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.FilterQuality
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.rafaelperatello.pokemonchallenge.MainRoutes
@@ -44,7 +45,7 @@ import org.koin.androidx.compose.koinViewModel
 internal fun HomeScreen(
     modifier: Modifier = Modifier,
     currentRoute: State<MainRoutes?>,
-    onUpdateAppBarAction: (AppBarAction?) -> Unit,
+    onUpdateAppBarAction: (AppBarAction?) -> Unit
 ) {
     val viewModel: MainViewModel = koinViewModel<MainViewModel>()
     var showDialog by remember { mutableStateOf(false) }
@@ -89,11 +90,11 @@ internal fun HomeContent(
     gridStyleFlow: StateFlow<GridStyle>,
     onRetryClick: () -> Unit = {},
     onFetchNextPage: () -> Unit = {},
-    onPokemonClick: (ShallowPokemon) -> Unit = {},
+    onPokemonClick: (ShallowPokemon) -> Unit = {}
 ) {
     Surface(
         modifier = modifier,
-        color = MaterialTheme.colorScheme.background,
+        color = MaterialTheme.colorScheme.background
     ) {
         val state = viewState.collectAsState()
 
@@ -161,7 +162,6 @@ internal fun PokemonGrid(
     onPokemonClick: (ShallowPokemon) -> Unit = {},
     onRetryClick: () -> Unit = {}
 ) {
-
     val gridStyle by gridStyleFlow.collectAsState()
     val columnsCount by remember(gridStyle) {
         mutableIntStateOf(
@@ -169,6 +169,16 @@ internal fun PokemonGrid(
                 GridStyle.SMALL -> 4
                 GridStyle.MEDIUM -> 3
                 GridStyle.LARGE -> 2
+            }
+        )
+    }
+
+    val filterQuality by remember(gridStyle) {
+        mutableStateOf(
+            when (gridStyle) {
+                GridStyle.SMALL -> FilterQuality.None
+                GridStyle.MEDIUM -> FilterQuality.Low
+                GridStyle.LARGE -> FilterQuality.High
             }
         )
     }
@@ -186,6 +196,7 @@ internal fun PokemonGrid(
                 modifier = Modifier
                     .aspectRatio(0.72f)
                     .padding(3.dp),
+                filterQuality = filterQuality,
                 pokemon = pokemonList[it],
                 position = it,
                 onPokemonClick = onPokemonClick
