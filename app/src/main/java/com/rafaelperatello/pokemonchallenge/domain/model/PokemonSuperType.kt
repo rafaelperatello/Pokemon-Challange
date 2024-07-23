@@ -1,6 +1,6 @@
 package com.rafaelperatello.pokemonchallenge.domain.model
 
-internal val pokemonSuperTypeToEnum = PokemonSuperType.entries.associateBy { it.type }
+internal val PokemonSuperTypeToEnum = PokemonSuperType.entries.associateBy { it.type }
 
 /**
  * Super types : https://api.pokemontcg.io/v2/supertypes

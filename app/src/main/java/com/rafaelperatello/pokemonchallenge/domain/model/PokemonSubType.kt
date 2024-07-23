@@ -1,6 +1,6 @@
 package com.rafaelperatello.pokemonchallenge.domain.model
 
-internal val pokemonSubTypeToEnum = PokemonSubType.entries.associateBy { it.type }
+internal val PokemonSubTypeToEnum = PokemonSubType.entries.associateBy { it.type }
 
 /**
  * Subtypes: https://api.pokemontcg.io/v2/subtypes

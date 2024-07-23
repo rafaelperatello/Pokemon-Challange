@@ -1,6 +1,6 @@
 package com.rafaelperatello.pokemonchallenge.domain.model
 
-internal val pokemonTypeToEnum = PokemonType.entries.associateBy { it.type }
+internal val PokemonTypeToEnum = PokemonType.entries.associateBy { it.type }
 
 /**
  * Types: https://bulbapedia.bulbagarden.net/wiki/Type_(TCG)
