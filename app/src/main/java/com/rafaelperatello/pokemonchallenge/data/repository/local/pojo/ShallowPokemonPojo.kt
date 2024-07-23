@@ -3,7 +3,7 @@ package com.rafaelperatello.pokemonchallenge.data.repository.local.pojo
 import androidx.room.ColumnInfo
 import com.rafaelperatello.pokemonchallenge.domain.model.shallow.ShallowPokemon
 
-data class ShallowPokemonPojo(
+internal data class ShallowPokemonPojo(
 
     @ColumnInfo(name = "id")
     val id: Int,
