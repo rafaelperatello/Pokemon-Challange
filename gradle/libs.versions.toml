@@ -53,6 +53,7 @@ data-store = { group = "androidx.datastore", name = "datastore-preferences", ver
 room-database = { group = "androidx.room", name = "room-runtime", version.ref = "roomDatabase" }
 room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "roomDatabase" }
 room-paging = { group = "androidx.room", name = "room-paging", version.ref = "roomDatabase" }
+room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "roomDatabase" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

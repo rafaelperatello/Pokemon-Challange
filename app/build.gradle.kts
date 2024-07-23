@@ -87,6 +87,7 @@ dependencies {
 
     implementation(libs.room.database)
     implementation(libs.room.paging)
+    implementation(libs.room.ktx)
     ksp(libs.room.compiler)
 
     debugImplementation(libs.androidx.ui.tooling)
