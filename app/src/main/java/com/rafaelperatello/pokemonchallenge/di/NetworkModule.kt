@@ -1,8 +1,9 @@
 package com.rafaelperatello.pokemonchallenge.di
 
 import android.content.Context
-import com.rafaelperatello.pokemonchallenge.data.repository.remote.Api
+import com.rafaelperatello.pokemonchallenge.NetworkConstants
 import com.rafaelperatello.pokemonchallenge.data.repository.remote.PokemonApi
+import com.rafaelperatello.pokemonchallenge.data.repository.remote.PokemonApiConstants
 import kotlinx.serialization.json.Json
 import okhttp3.Cache
 import okhttp3.Interceptor
@@ -15,7 +16,7 @@ import retrofit2.converter.kotlinx.serialization.asConverterFactory
 import java.io.File
 import java.util.concurrent.TimeUnit
 
-internal val networkModule = module {
+internal val NetworkModule = module {
 
     single {
         provideHttpClient(
@@ -37,14 +38,14 @@ internal val networkModule = module {
 }
 
 private fun provideHttpClient(context: Context): OkHttpClient {
-    val cacheSize = 20 * 1024 * 1024
-    val cacheDirectory = File(context.cacheDir, "http-cache")
+    val cacheSize = NetworkConstants.Cache.SIZE
+    val cacheDirectory = File(context.cacheDir, NetworkConstants.Cache.DIRECTORY)
     val cache = Cache(cacheDirectory, cacheSize.toLong())
 
     val networkInterceptor = Interceptor { chain ->
         val response = chain.proceed(chain.request())
 
-        // Bypass cache control headers
+        // Override cache control headers
         val cacheControl = "public, max-age=3600"
 
         response.newBuilder()
@@ -66,7 +67,7 @@ private fun provideRetrofit(
 ): Retrofit {
     val networkJson = Json { ignoreUnknownKeys = true }
     return Retrofit.Builder()
-        .baseUrl(Api.BASE_URL)
+        .baseUrl(PokemonApiConstants.BASE_URL)
         .client(okHttpClient)
         .addConverterFactory(
             networkJson.asConverterFactory("application/json; charset=UTF8".toMediaType())

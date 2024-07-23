@@ -24,17 +24,7 @@ import kotlin.coroutines.CoroutineContext
 
 internal object DataModuleConstants {
 
-    const val DATA_STORE_PREFERENCES_NAME = "app_preferences"
-}
-
-internal val dataModule = module {
-
-    single {
-        PokemonRemotePagingSource(
-            pokemonService = get(),
-            ioContext = get(named(IO_CONTEXT))
-        )
-    }
+internal val DataModule = module {
 
     single<PokemonRepository> {
         PokemonRepositoryImpl(

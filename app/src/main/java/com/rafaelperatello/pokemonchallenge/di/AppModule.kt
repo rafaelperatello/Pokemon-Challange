@@ -11,7 +11,7 @@ const val IO_CONTEXT = "IO_DISPATCHER"
 const val CPU_CONTEXT = "CPU_DISPATCHER"
 const val MAIN_CONTEXT = "MAIN_DISPATCHER"
 
-internal val appModule = module {
+internal val AppModule = module {
 
     viewModelOf(::MainViewModel)
 
