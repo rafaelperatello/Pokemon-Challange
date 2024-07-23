@@ -1,48 +1,28 @@
 package com.rafaelperatello.pokemonchallenge.di
 
 import android.content.Context
-import androidx.datastore.core.DataStore
-import androidx.datastore.core.handlers.ReplaceFileCorruptionHandler
-import androidx.datastore.preferences.core.PreferenceDataStoreFactory
-import androidx.datastore.preferences.core.Preferences
-import androidx.datastore.preferences.core.emptyPreferences
-import androidx.datastore.preferences.preferencesDataStoreFile
 import androidx.room.Room
-import com.rafaelperatello.pokemonchallenge.data.repository.PokemonRemotePagingSource
 import com.rafaelperatello.pokemonchallenge.data.repository.PokemonRepositoryImpl
 import com.rafaelperatello.pokemonchallenge.data.repository.local.PokemonDatabase
+import com.rafaelperatello.pokemonchallenge.data.repository.local.PokemonDatabaseCallback
 import com.rafaelperatello.pokemonchallenge.data.repository.local.PokemonDatabaseConstants
-import com.rafaelperatello.pokemonchallenge.data.settings.AppSettingsImpl
+import com.rafaelperatello.pokemonchallenge.data.repository.local.dao.PokemonDao
+import com.rafaelperatello.pokemonchallenge.data.repository.paging.PokemonLocalPagingSourceFactory
+import com.rafaelperatello.pokemonchallenge.data.repository.paging.PokemonRemoteMediator
+import com.rafaelperatello.pokemonchallenge.data.repository.paging.PokemonRemotePagingSourceFactory
 import com.rafaelperatello.pokemonchallenge.domain.repository.PokemonRepository
-import com.rafaelperatello.pokemonchallenge.domain.settings.AppSettings
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.SupervisorJob
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
-import kotlin.coroutines.CoroutineContext
-
-internal object DataModuleConstants {
 
 internal val DataModule = module {
 
     single<PokemonRepository> {
         PokemonRepositoryImpl(
-            pokemonPagingSource = get()
-        )
-    }
-
-    single<AppSettings> {
-        AppSettingsImpl(
-            dataStore = get(),
-            ioContext = get(named(IO_CONTEXT))
-        )
-    }
-
-    single<DataStore<Preferences>> {
-        provideDataStore(
-            context = androidContext(),
-            ioContext = get(named(IO_CONTEXT))
+            pokemonLocalPagingSource = get(),
+            pokemonRemoteMediator = get(),
+            pokemonDao = get(),
+            pokemonRemotePagingSourceFactory = get()
         )
     }
 
@@ -51,20 +31,31 @@ internal val DataModule = module {
             context = androidContext()
         )
     }
-}
 
-private fun provideDataStore(
-    context: Context,
-    ioContext: CoroutineContext
-): DataStore<Preferences> {
-    return PreferenceDataStoreFactory.create(
-        scope = CoroutineScope(ioContext + SupervisorJob()),
-        migrations = emptyList(),
-        corruptionHandler = ReplaceFileCorruptionHandler(
-            produceNewData = { emptyPreferences() }
+    single<PokemonDao> {
+        get<PokemonDatabase>().pokemonDao()
+    }
+
+    single {
+        PokemonRemotePagingSourceFactory(
+            ioContext = get(named(IO_CONTEXT)),
+            pokemonApi = get()
         )
-    ) {
-        context.preferencesDataStoreFile(DataModuleConstants.DATA_STORE_PREFERENCES_NAME)
+    }
+
+    single {
+        PokemonLocalPagingSourceFactory(
+            ioContext = get(named(IO_CONTEXT)),
+            pokemonDb = get()
+        )
+    }
+
+    single {
+        PokemonRemoteMediator(
+            ioContext = get(named(IO_CONTEXT)),
+            pokemonService = get(),
+            pokemonDao = get()
+        )
     }
 }
 
@@ -75,5 +66,7 @@ private fun provideDatabase(
         context,
         PokemonDatabase::class.java,
         PokemonDatabaseConstants.DATABASE_NAME
-    ).build()
+    )
+        .addCallback(PokemonDatabaseCallback)
+        .build()
 }

@@ -1,7 +1,6 @@
 package com.rafaelperatello.pokemonchallenge.ui.screen.home
 
 import android.util.Log
-import androidx.compose.runtime.Immutable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
@@ -38,11 +37,11 @@ internal class MainViewModel(
 
     private fun fetchData() = viewModelScope.launch {
         viewModelScope.launch {
-            repository.getPokemonListShallow()
+            repository.getShallowPokemonList()
                 .distinctUntilChanged()
                 .cachedIn(viewModelScope)
                 .collect {
-                    Log.d("MainViewModel", "fetchData: $it")
+                    Log.d("PokemonPaging", "VM - fetchData: $it")
                     _listState.value = it
                 }
         }

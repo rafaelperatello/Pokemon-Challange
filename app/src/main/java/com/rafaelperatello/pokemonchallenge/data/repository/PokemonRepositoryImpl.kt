@@ -1,64 +1,63 @@
 package com.rafaelperatello.pokemonchallenge.data.repository
 
-import com.rafaelperatello.pokemonchallenge.data.repository.local.PokemonDatabase
-import com.rafaelperatello.pokemonchallenge.data.repository.remote.PokemonApi
-import com.rafaelperatello.pokemonchallenge.data.repository.remote.dto.medium.toMediumPokemon
-import com.rafaelperatello.pokemonchallenge.data.repository.remote.dto.toTypedDTO
-import com.rafaelperatello.pokemonchallenge.data.repository.remote.safeApiCall
-import com.rafaelperatello.pokemonchallenge.domain.model.PokemonList
-import com.rafaelperatello.pokemonchallenge.domain.model.medium.MediumPokemon
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.PagingData
+import com.rafaelperatello.pokemonchallenge.data.repository.local.dao.PokemonDao
+import com.rafaelperatello.pokemonchallenge.data.repository.paging.PagerConstants.PAGE_SIZE
+import com.rafaelperatello.pokemonchallenge.data.repository.paging.PokemonLocalPagingSourceFactory
+import com.rafaelperatello.pokemonchallenge.data.repository.paging.PokemonRemoteMediator
+import com.rafaelperatello.pokemonchallenge.data.repository.paging.PokemonRemotePagingSourceFactory
 import com.rafaelperatello.pokemonchallenge.domain.model.shallow.ShallowPokemon
 import com.rafaelperatello.pokemonchallenge.domain.repository.PokemonRepository
-import com.rafaelperatello.pokemonchallenge.domain.util.DomainResult
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-import kotlin.coroutines.CoroutineContext
+import kotlinx.coroutines.flow.Flow
 
 internal class PokemonRepositoryImpl(
-    private val pokemonService: PokemonApi,
-    private val pokemonDb: PokemonDatabase,
-    private val ioContext: CoroutineContext
+    private val pokemonLocalPagingSource: PokemonLocalPagingSourceFactory,
+    private val pokemonRemoteMediator: PokemonRemoteMediator,
+    private val pokemonDao: PokemonDao,
+    private val pokemonRemotePagingSourceFactory: PokemonRemotePagingSourceFactory
 ) : PokemonRepository {
 
-    override suspend fun getPokemonList(page: Int): DomainResult<PokemonList<ShallowPokemon>> =
-        withContext(ioContext) {
-            when (val result = getPokemonListMedium(page)) {
-                is DomainResult.Success -> DomainResult.Success(
-                    PokemonList(
-                        data = result.data.data.map {
-                            ShallowPokemon(
-                                id = it.id,
-                                name = it.name,
-                                number = it.number,
-                                imageSmall = it.imageSmall,
-                                imageLarge = it.imageLarge
-                            )
-                        },
-                        page = result.data.page,
-                        pageSize = result.data.pageSize,
-                        count = result.data.count,
-                        totalCount = result.data.totalCount
-                    )
-                )
+//    @OptIn(ExperimentalPagingApi::class)
+//    override suspend fun getShallowPokemonList(): Flow<PagingData<ShallowPokemon>> {
+//        return Pager(
+//            config = PagingConfig(
+//                pageSize = PAGE_SIZE,
+//                enablePlaceholders = true,
+//                prefetchDistance = 10
+//            ),
+//            pagingSourceFactory = { pokemonLocalPagingSource.create() },
+//            remoteMediator = pokemonRemoteMediator
+//        ).flow
+//    }
 
-                is DomainResult.Error -> DomainResult.Error(result.error)
-            }
-        }
+//    @OptIn(ExperimentalPagingApi::class)
+//    override suspend fun getShallowPokemonList(): Flow<PagingData<ShallowPokemon>> {
+//        return Pager(
+//            config = PagingConfig(
+//                pageSize = PAGE_SIZE,
+//                enablePlaceholders = true,
+//                prefetchDistance = 10
+//            ),
+//            pagingSourceFactory = { pokemonDao.getAllPaging() },
+//            remoteMediator = pokemonRemoteMediator
+//        )
+//            .flow
+//            .map { pagingData ->
+//                pagingData.map { it.toShallowPokemon() }
+//            }
+//    }
 
-    override suspend fun getPokemonListMedium(page: Int): DomainResult<PokemonList<MediumPokemon>> =
-        withContext(Dispatchers.IO) {
-            safeApiCall(
-                mapper = {
-                    it.toTypedDTO { dto -> dto.toMediumPokemon() }
-                },
-                apiCall = {
-                    pokemonService.getCardsMedium(page)
-                }
-            )
 
-        }
-
-    override suspend fun getPokemonDetails(id: String) = withContext(Dispatchers.IO) {
-        TODO("Not yet implemented")
+    override suspend fun getShallowPokemonList(): Flow<PagingData<ShallowPokemon>> {
+        return Pager(
+            config = PagingConfig(
+                pageSize = PAGE_SIZE,
+                enablePlaceholders = true,
+                prefetchDistance = 10
+            ),
+            pagingSourceFactory = { pokemonRemotePagingSourceFactory.create() }
+        ).flow
     }
 }

@@ -6,6 +6,5 @@ import kotlinx.coroutines.flow.Flow
 
 internal interface PokemonRepository {
 
-    suspend fun getPokemonListShallow(): Flow<PagingData<ShallowPokemon>>
-
+    suspend fun getShallowPokemonList(): Flow<PagingData<ShallowPokemon>>
 }

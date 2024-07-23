@@ -1,18 +1,20 @@
-package com.rafaelperatello.pokemonchallenge.data.repository
+package com.rafaelperatello.pokemonchallenge.data.repository.paging
 
+import android.util.Log
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import com.rafaelperatello.pokemonchallenge.data.repository.remote.PokemonApi
 import com.rafaelperatello.pokemonchallenge.data.repository.remote.dto.medium.toMediumPokemon
 import com.rafaelperatello.pokemonchallenge.data.repository.remote.dto.toTypedDTO
-import com.rafaelperatello.pokemonchallenge.data.repository.remote.safeApiCall
+import com.rafaelperatello.pokemonchallenge.data.repository.remote.util.safeApiCall
 import com.rafaelperatello.pokemonchallenge.domain.model.shallow.ShallowPokemon
 import com.rafaelperatello.pokemonchallenge.domain.util.DomainResult
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import kotlin.coroutines.CoroutineContext
 
 internal class PokemonRemotePagingSource(
-    private val pokemonService: PokemonApi,
+    private val pokemonApi: PokemonApi,
     private val ioContext: CoroutineContext
 ) : PagingSource<Int, ShallowPokemon>() {
 
@@ -25,15 +27,21 @@ internal class PokemonRemotePagingSource(
 
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, ShallowPokemon> =
         withContext(ioContext) {
-            val page = params.key ?: 1
+            delay(2000) // Todo remove
 
+            val page = params.key ?: 1
             val result = safeApiCall(
                 mapper = {
                     it.toTypedDTO { dto -> dto.toMediumPokemon() }
                 },
                 apiCall = {
-                    pokemonService.getCardsMedium(page, params.loadSize)
+                    pokemonApi.getCards(page, params.loadSize)
                 }
+            )
+
+            Log.d(
+                "PokemonPaging",
+                "RemotePagingSource - page: $page, loadSize: ${params.loadSize}, result: $result"
             )
 
             when (result) {
@@ -55,9 +63,7 @@ internal class PokemonRemotePagingSource(
                 }
 
                 is DomainResult.Error -> {
-                    LoadResult.Error(
-                        IllegalStateException("error: ${result.error}")
-                    )
+                    LoadResult.Error(IllegalStateException("error: ${result.error}"))
                 }
             }
         }
