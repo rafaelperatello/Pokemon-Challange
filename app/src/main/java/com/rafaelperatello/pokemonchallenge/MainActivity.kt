@@ -33,6 +33,8 @@ import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -57,6 +59,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.rafaelperatello.pokemonchallenge.ui.screen.home.HomeScreen
+import com.rafaelperatello.pokemonchallenge.ui.screen.settings.SettingsScreen
 import com.rafaelperatello.pokemonchallenge.ui.theme.PokemonChallengeTheme
 import com.rafaelperatello.pokemonchallenge.ui.widget.AppBarAction
 import com.rafaelperatello.pokemonchallenge.ui.widget.PokemonAppBar
@@ -105,10 +108,13 @@ class MainActivity : ComponentActivity() {
                     appBarMenuActions.value = action
                 }
 
+                val snackbarHostState = remember { SnackbarHostState() }
+
                 PokemonScaffold(
                     navController = navController,
                     currentRoute = currentRoute,
-                    appBarMenuActions = appBarMenuActions
+                    appBarMenuActions = appBarMenuActions,
+                    snackbarHostState = snackbarHostState
                 ) { innerPadding ->
                     Column(
                         modifier = Modifier
@@ -119,6 +125,7 @@ class MainActivity : ComponentActivity() {
                             navController = navController,
                             startDestination = MainRoutes.Home,
                             currentRoute = currentRoute,
+                            snackbarHostState = snackbarHostState,
                             onUpdateAppBarAction = onUpdateAppBarAction
                         )
                     }
@@ -133,11 +140,13 @@ internal fun PokemonScaffold(
     navController: NavHostController = rememberNavController(),
     currentRoute: State<MainRoutes> = remember { mutableStateOf(MainRoutes.Home) },
     appBarMenuActions: State<AppBarAction?> = remember { mutableStateOf(null) },
+    snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
     body: @Composable (PaddingValues) -> Unit = {}
 ) {
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = { MainAppBar(appBarMenuActions) },
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         bottomBar = {
             MainBottomBar(
                 currentRoute = currentRoute,
@@ -188,6 +197,7 @@ internal fun MainNavHost(
     navController: NavHostController,
     startDestination: MainRoutes,
     currentRoute: State<MainRoutes>,
+    snackbarHostState: SnackbarHostState,
     onUpdateAppBarAction: (AppBarAction?) -> Unit = {}
 ) {
     NavHost(
@@ -222,13 +232,7 @@ internal fun MainNavHost(
                 }
             }
 
-            Column(
-                modifier = Modifier.fillMaxSize(),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text(text = "Settings")
-            }
+            SettingsScreen(snackbarHostState)
         }
     }
 }
