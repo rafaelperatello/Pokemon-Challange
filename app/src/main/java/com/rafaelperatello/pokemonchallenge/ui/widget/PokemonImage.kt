@@ -7,8 +7,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -29,60 +27,53 @@ import kotlinx.coroutines.Dispatchers
 
 @Composable
 internal fun PokemonImage(
-    modifier: Modifier = Modifier,
     filterQuality: FilterQuality = FilterQuality.Low,
     pokemon: ShallowPokemon,
     position: Int,
-    onPokemonClick: (ShallowPokemon) -> Unit = {}
+    onPokemonClick: (ShallowPokemon) -> Unit
 ) {
-    Surface(
-        tonalElevation = 3.dp,
-        color = MaterialTheme.colorScheme.surfaceContainer,
-        modifier = modifier
+    val context = LocalContext.current
+    val imageUrl = pokemon.imageSmall ?: ""
+
+    val imageRequest = ImageRequest.Builder(context)
+        .data(imageUrl)
+        .dispatcher(Dispatchers.IO)
+        .memoryCacheKey(imageUrl)
+        .diskCacheKey(imageUrl)
+        .diskCachePolicy(CachePolicy.ENABLED)
+        .memoryCachePolicy(CachePolicy.ENABLED)
+        .build()
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
             .clickable {
                 onPokemonClick(pokemon)
             },
-        shape = MaterialTheme.shapes.small
     ) {
-        val context = LocalContext.current
-        val imageUrl = pokemon.imageSmall ?: ""
+        AsyncImage(
+            model = imageRequest,
+            contentDescription = pokemon.name,
+            contentScale = ContentScale.Fit,
+            modifier = Modifier.fillMaxSize(),
+            filterQuality = filterQuality
+        )
 
-        val imageRequest = ImageRequest.Builder(context)
-            .data(imageUrl)
-            .dispatcher(Dispatchers.IO)
-            .memoryCacheKey(imageUrl)
-            .diskCacheKey(imageUrl)
-            .diskCachePolicy(CachePolicy.ENABLED)
-            .memoryCachePolicy(CachePolicy.ENABLED)
-            .build()
-
-        Box(
-            modifier = Modifier.fillMaxSize()
-        ) {
-            AsyncImage(
-                model = imageRequest,
-                contentDescription = pokemon.name,
-                contentScale = ContentScale.Fit,
-                modifier = Modifier.fillMaxSize(),
-                filterQuality = filterQuality
-            )
-
-            Text(
-                text = (position + 1).toString(),
-                color = Color.White,
-                modifier = Modifier
-                    .align(Alignment.BottomEnd)
-                    .offset((-4).dp, (-4).dp)
-                    .background(
-                        color = Color(0xFFFF0000),
-                        shape = RoundedCornerShape(8.dp)
-                    )
-                    .padding(8.dp, 3.dp),
-                style = TextStyle(
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold
+        Text(
+            text = (position + 1).toString(),
+            color = Color.White,
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .offset((-4).dp, (-4).dp)
+                .background(
+                    color = Color(0xFFFF0000),
+                    shape = RoundedCornerShape(8.dp)
                 )
+                .padding(8.dp, 3.dp),
+            style = TextStyle(
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold
             )
-        }
+        )
     }
 }

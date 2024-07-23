@@ -15,7 +15,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 private val pokemonList = buildList {
     repeat(10) {
         val pokemon = ShallowPokemon(
-            id = it.toString(),
+            id = it,
+            pokemonId = it.toString(),
             name = "Pokemon $it"
         )
 

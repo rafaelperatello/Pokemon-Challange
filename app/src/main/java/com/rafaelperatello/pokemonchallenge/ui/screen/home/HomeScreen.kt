@@ -2,11 +2,8 @@ package com.rafaelperatello.pokemonchallenge.ui.screen.home
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -36,6 +33,7 @@ import com.rafaelperatello.pokemonchallenge.R
 import com.rafaelperatello.pokemonchallenge.domain.model.shallow.ShallowPokemon
 import com.rafaelperatello.pokemonchallenge.domain.settings.GridStyle
 import com.rafaelperatello.pokemonchallenge.ui.widget.AppBarAction
+import com.rafaelperatello.pokemonchallenge.ui.widget.CardItem
 import com.rafaelperatello.pokemonchallenge.ui.widget.ErrorWidget
 import com.rafaelperatello.pokemonchallenge.ui.widget.LoadingWidget
 import com.rafaelperatello.pokemonchallenge.ui.widget.PokemonImage
@@ -111,7 +109,7 @@ internal fun HomeContent(
                 ErrorWidget(
                     modifier = Modifier.fillMaxSize(),
                     textColor = MaterialTheme.colorScheme.onSurface,
-                    buttonColor = MaterialTheme.colorScheme.tertiary,
+                    buttonColor = MaterialTheme.colorScheme.secondary,
                     errorDescription = stringResource(R.string.error_loading_data),
                     errorAction = stringResource(R.string.retry),
                     onRetryClick = onRetryClick
@@ -172,63 +170,54 @@ internal fun PokemonGrid(
         horizontalArrangement = Arrangement.spacedBy(3.dp)
     ) {
         items(listState.itemCount, key = { it }) {
-            PokemonImage(
-                modifier = Modifier
-                    .aspectRatio(0.72f)
-                    .padding(3.dp),
-                filterQuality = filterQuality,
-                pokemon = listState[it]!!,
-                position = it,
-                onPokemonClick = onPokemonClick
-            )
+            CardItem(
+                color = MaterialTheme.colorScheme.surfaceContainer
+            ) {
+                val pokemon = listState[it] ?: return@CardItem
+                PokemonImage(
+                    filterQuality = filterQuality,
+                    pokemon = pokemon,
+                    position = it,
+                    onPokemonClick = onPokemonClick
+                )
+            }
         }
 
-        item() {
-            val color = when (listState.loadState.append) {
-                is LoadState.Error -> MaterialTheme.colorScheme.errorContainer
-                else -> MaterialTheme.colorScheme.surface
-            }
-
-            Surface(
-                modifier = Modifier
-                    .aspectRatio(0.72f)
-                    .padding(3.dp),
-                color = color,
-                shape = MaterialTheme.shapes.small
-            ) {
-                Column(
-                    modifier = Modifier
-                        .aspectRatio(0.72f)
-                        .padding(3.dp)
-                ) {
-                    when (listState.loadState.append) {
-                        is LoadState.Loading -> {
-                            LoadingWidget(
-                                modifier = Modifier.fillMaxSize(),
-                                loadingSize = 48.dp,
-                                strokeWidth = 8.dp,
-                                color = MaterialTheme.colorScheme.secondary,
-                                trackColor = MaterialTheme.colorScheme.surfaceVariant
-                            )
-                        }
-
-                        is LoadState.Error -> {
-                            ErrorWidget(
-                                modifier = Modifier.fillMaxSize(),
-                                textColor = MaterialTheme.colorScheme.onErrorContainer,
-                                buttonColor = MaterialTheme.colorScheme.error,
-                                onRetryClick = onRetryClick,
-                                errorDescription = stringResource(R.string.error_loading_page),
-                                errorAction = stringResource(R.string.retry)
-                            )
-                        }
-
-                        else -> {
-                            Unit
-                        }
+        when (listState.loadState.append) {
+            is LoadState.Error -> {
+                item() {
+                    CardItem(
+                        color = MaterialTheme.colorScheme.errorContainer
+                    ) {
+                        ErrorWidget(
+                            modifier = Modifier.fillMaxSize(),
+                            textColor = MaterialTheme.colorScheme.onErrorContainer,
+                            buttonColor = MaterialTheme.colorScheme.error,
+                            onRetryClick = onRetryClick,
+                            errorDescription = stringResource(R.string.error_loading_page),
+                            errorAction = stringResource(R.string.retry)
+                        )
                     }
                 }
             }
+
+            is LoadState.Loading -> {
+                item() {
+                    CardItem(
+                        color = MaterialTheme.colorScheme.background
+                    ) {
+                        LoadingWidget(
+                            modifier = Modifier.fillMaxSize(),
+                            loadingSize = 48.dp,
+                            strokeWidth = 8.dp,
+                            color = MaterialTheme.colorScheme.secondary,
+                            trackColor = MaterialTheme.colorScheme.surfaceVariant
+                        )
+                    }
+                }
+            }
+
+            else -> Unit
         }
     }
 }
