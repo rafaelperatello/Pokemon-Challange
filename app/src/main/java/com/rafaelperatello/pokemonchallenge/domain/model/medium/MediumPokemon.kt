@@ -5,7 +5,8 @@ import com.rafaelperatello.pokemonchallenge.domain.model.PokemonSuperType
 import com.rafaelperatello.pokemonchallenge.domain.model.PokemonType
 
 internal data class MediumPokemon(
-    val id: String = "",
+    val id: Int = 0,
+    val pokemonId: String = "",
     val name: String = "",
     val number: String = "",
     val types: Array<PokemonType> = arrayOf(PokemonType.UNKNOWN),
@@ -25,6 +26,7 @@ internal data class MediumPokemon(
         other as MediumPokemon
 
         if (id != other.id) return false
+        if (pokemonId != other.pokemonId) return false
         if (name != other.name) return false
         if (number != other.number) return false
         if (!types.contentEquals(other.types)) return false
@@ -40,7 +42,8 @@ internal data class MediumPokemon(
     }
 
     override fun hashCode(): Int {
-        var result = id.hashCode()
+        var result = id
+        result = 31 * result + pokemonId.hashCode()
         result = 31 * result + name.hashCode()
         result = 31 * result + number.hashCode()
         result = 31 * result + types.contentHashCode()
