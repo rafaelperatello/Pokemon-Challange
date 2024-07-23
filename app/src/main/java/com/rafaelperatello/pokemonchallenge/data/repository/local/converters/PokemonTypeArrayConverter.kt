@@ -3,7 +3,7 @@ package com.rafaelperatello.pokemonchallenge.data.repository.local.converters
 import androidx.room.TypeConverter
 import com.rafaelperatello.pokemonchallenge.BuildConfig
 import com.rafaelperatello.pokemonchallenge.domain.model.PokemonType
-import com.rafaelperatello.pokemonchallenge.domain.model.pokemonTypeToEnum
+import com.rafaelperatello.pokemonchallenge.domain.model.PokemonTypeToEnum
 
 internal class PokemonTypeArrayConverter {
 
@@ -15,7 +15,7 @@ internal class PokemonTypeArrayConverter {
     @TypeConverter
     fun fromStringArray(array: String?): Array<PokemonType> {
         return array?.split(",")?.map {
-            pokemonTypeToEnum[it]
+            PokemonTypeToEnum[it]
                 ?: run {
                     if (BuildConfig.DEBUG) {
                         throw IllegalArgumentException("Unknown PokemonSubType: $it")
