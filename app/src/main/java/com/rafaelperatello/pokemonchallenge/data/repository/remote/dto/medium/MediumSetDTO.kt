@@ -5,7 +5,6 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 internal data class MediumSetDTO(
-
     @SerialName("id")
-    var id: String? = null
+    var id: String? = null,
 )

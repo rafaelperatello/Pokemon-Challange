@@ -6,23 +6,21 @@ import com.rafaelperatello.pokemonchallenge.domain.model.PokemonSubType
 import com.rafaelperatello.pokemonchallenge.domain.model.PokemonSubTypeToEnum
 
 internal class PokemonSubTypeArrayConverter {
+    @TypeConverter
+    fun fromPokemonSubTypeArray(value: Array<PokemonSubType>): String = value.map { it.name }.toTypedArray().joinToString(",")
 
     @TypeConverter
-    fun fromPokemonSubTypeArray(value: Array<PokemonSubType>): String {
-        return value.map { it.name }.toTypedArray().joinToString(",")
-    }
+    fun fromStringArray(array: String?): Array<PokemonSubType> =
+        array
+            ?.split(",")
+            ?.map {
+                PokemonSubTypeToEnum[it]
+                    ?: run {
+                        if (BuildConfig.DEBUG) {
+                            throw IllegalArgumentException("Unknown PokemonSubType: $it")
+                        }
 
-    @TypeConverter
-    fun fromStringArray(array: String?): Array<PokemonSubType> {
-        return array?.split(",")?.map {
-            PokemonSubTypeToEnum[it]
-                ?: run {
-                    if (BuildConfig.DEBUG) {
-                        throw IllegalArgumentException("Unknown PokemonSubType: $it")
+                        PokemonSubType.UNKNOWN
                     }
-
-                    PokemonSubType.UNKNOWN
-                }
-        }?.toTypedArray() ?: emptyArray()
-    }
+            }?.toTypedArray() ?: emptyArray()
 }

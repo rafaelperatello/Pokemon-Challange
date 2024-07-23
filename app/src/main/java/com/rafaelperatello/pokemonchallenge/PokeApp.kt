@@ -16,8 +16,9 @@ import org.koin.android.ext.koin.androidLogger
 import org.koin.core.context.GlobalContext.startKoin
 import org.koin.core.logger.Level
 
-class PokeApp : Application(), ImageLoaderFactory {
-
+class PokeApp :
+    Application(),
+    ImageLoaderFactory {
     override fun onCreate() {
         super.onCreate()
 
@@ -28,26 +29,26 @@ class PokeApp : Application(), ImageLoaderFactory {
                 AppModule,
                 DataModule,
                 NetworkModule,
-                SettingsModule
+                SettingsModule,
             )
         }
     }
 
-    override fun newImageLoader(): ImageLoader {
-        return ImageLoader.Builder(this)
+    override fun newImageLoader(): ImageLoader =
+        ImageLoader
+            .Builder(this)
             .memoryCache {
-                MemoryCache.Builder(this)
+                MemoryCache
+                    .Builder(this)
                     .maxSizePercent(ImageConstants.Cache.MEMORY_PERCENT)
                     .build()
-            }
-            .diskCache {
-                DiskCache.Builder()
+            }.diskCache {
+                DiskCache
+                    .Builder()
                     .directory(cacheDir.resolve(ImageConstants.Cache.DIRECTORY))
                     .maxSizeBytes(ImageConstants.Cache.DISK_SIZE)
                     .build()
-            }
-            .logger(DebugLogger(level = Log.INFO))
+            }.logger(DebugLogger(level = Log.INFO))
             .respectCacheHeaders(false)
             .build()
-    }
 }

@@ -17,34 +17,35 @@ import org.koin.core.qualifier.named
 import org.koin.dsl.module
 import kotlin.coroutines.CoroutineContext
 
-internal val SettingsModule = module {
+internal val SettingsModule =
+    module {
 
-    single<AppSettings> {
-        AppSettingsImpl(
-            dataStore = get(),
-            ioContext = get(named(IO_CONTEXT))
-        )
-    }
+        single<AppSettings> {
+            AppSettingsImpl(
+                dataStore = get(),
+                ioContext = get(named(IO_CONTEXT)),
+            )
+        }
 
-    single<DataStore<Preferences>> {
-        provideDataStore(
-            context = androidContext(),
-            ioContext = get(named(IO_CONTEXT))
-        )
+        single<DataStore<Preferences>> {
+            provideDataStore(
+                context = androidContext(),
+                ioContext = get(named(IO_CONTEXT)),
+            )
+        }
     }
-}
 
 private fun provideDataStore(
     context: Context,
-    ioContext: CoroutineContext
-): DataStore<Preferences> {
-    return PreferenceDataStoreFactory.create(
+    ioContext: CoroutineContext,
+): DataStore<Preferences> =
+    PreferenceDataStoreFactory.create(
         scope = CoroutineScope(ioContext + SupervisorJob()),
         migrations = emptyList(),
-        corruptionHandler = ReplaceFileCorruptionHandler(
-            produceNewData = { emptyPreferences() }
-        )
+        corruptionHandler =
+            ReplaceFileCorruptionHandler(
+                produceNewData = { emptyPreferences() },
+            ),
     ) {
         context.preferencesDataStoreFile(SettingsModuleConstants.DATA_STORE_PREFERENCES_NAME)
     }
-}

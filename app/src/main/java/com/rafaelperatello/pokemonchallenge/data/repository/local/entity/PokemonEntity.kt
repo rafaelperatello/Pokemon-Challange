@@ -10,45 +10,32 @@ import com.rafaelperatello.pokemonchallenge.domain.model.PokemonType
 
 @Entity(tableName = "pokemon")
 internal data class PokemonEntity(
-
     @PrimaryKey
     @ColumnInfo(name = "pokemon_id", collate = ColumnInfo.NOCASE)
     val pokemonId: String,
-
     @ColumnInfo(name = "id")
     val id: Int,
-
     @ColumnInfo(name = "name", collate = ColumnInfo.NOCASE)
     val name: String,
-
     @ColumnInfo(name = "number")
     val number: String,
-
     @ColumnInfo(name = "type")
     val types: Array<PokemonType>,
-
     @ColumnInfo(name = "super_type")
     val superType: PokemonSuperType,
-
     @ColumnInfo(name = "sub_type")
     val subType: Array<PokemonSubType>,
-
     @ColumnInfo(name = "image_small")
     val imageSmall: String?,
-
     @ColumnInfo(name = "image_large")
     val imageLarge: String?,
-
     @ColumnInfo(name = "url")
     val url: String?,
-
     @ColumnInfo(name = "set_id")
     val setId: String,
-
     @ColumnInfo(name = "is_favorite")
-    val isFavorite: Boolean
+    val isFavorite: Boolean,
 ) {
-
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false

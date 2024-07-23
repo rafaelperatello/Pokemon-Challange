@@ -9,20 +9,18 @@ import retrofit2.http.Path
 import retrofit2.http.Query
 
 internal object PokemonApiConstants {
-
     const val BASE_URL: String = "https://api.pokemontcg.io/v2/"
 }
 
 internal interface PokemonApi {
-
     @GET("cards?select=id,name,number,images,types,subtypes,supertype,set")
     suspend fun getCards(
         @Query("page") currentPage: Int,
-        @Query("pageSize") pageSize: Int
+        @Query("pageSize") pageSize: Int,
     ): Response<PokemonListDTO<MediumPokemonDTO>>
 
     @GET("cards/{id}")
     suspend fun getCard(
-        @Path("id") id: String
+        @Path("id") id: String,
     ): Response<FullPokemonDTO>
 }

@@ -3,7 +3,6 @@ package com.rafaelperatello.pokemonchallenge.domain.util
 sealed interface DomainError
 
 sealed interface DataError : DomainError {
-
     enum class Network : DataError {
         NO_INTERNET,
         BAD_REQUEST,
@@ -14,10 +13,10 @@ sealed interface DataError : DomainError {
         BAD_GATEWAY,
         SERVICE_UNAVAILABLE,
         GATEWAY_TIMEOUT,
-        UNKNOWN
+        UNKNOWN,
     }
 
     enum class Local : DataError {
-        DISK_FULL
+        DISK_FULL,
     }
 }

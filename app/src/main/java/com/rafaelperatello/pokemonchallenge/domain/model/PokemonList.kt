@@ -5,5 +5,5 @@ internal data class PokemonList<T>(
     val page: Int,
     val pageSize: Int,
     val count: Int,
-    val totalCount: Int
+    val totalCount: Int,
 )

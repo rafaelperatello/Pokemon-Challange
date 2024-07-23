@@ -5,7 +5,6 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 internal data class LegalitiesDTO(
-
     @SerialName("unlimited")
-    var unlimited: String? = null
+    var unlimited: String? = null,
 )

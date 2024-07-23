@@ -12,39 +12,41 @@ import com.rafaelperatello.pokemonchallenge.domain.settings.GridStyle
 import com.rafaelperatello.pokemonchallenge.ui.theme.PokemonChallengeTheme
 import kotlinx.coroutines.flow.MutableStateFlow
 
-private val pokemonList = buildList {
-    repeat(10) {
-        val pokemon = ShallowPokemon(
-            id = it,
-            pokemonId = it.toString(),
-            name = "Pokemon $it"
-        )
+private val pokemonList =
+    buildList {
+        repeat(10) {
+            val pokemon =
+                ShallowPokemon(
+                    id = it,
+                    pokemonId = it.toString(),
+                    name = "Pokemon $it",
+                )
 
-        add(pokemon)
+            add(pokemon)
+        }
     }
-}
 
 private fun buildLoadStates(
     refresh: LoadState = LoadState.NotLoading(endOfPaginationReached = false),
     prepend: LoadState = LoadState.NotLoading(endOfPaginationReached = false),
-    append: LoadState = LoadState.NotLoading(endOfPaginationReached = false)
-): LoadStates {
-    return LoadStates(
+    append: LoadState = LoadState.NotLoading(endOfPaginationReached = false),
+): LoadStates =
+    LoadStates(
         refresh = refresh,
         prepend = prepend,
-        append = append
+        append = append,
     )
-}
 
 private fun fakeDataFlow(
     sourceLoadStates: LoadStates = buildLoadStates(),
-    mediatorLoadStates: LoadStates = buildLoadStates()
+    mediatorLoadStates: LoadStates = buildLoadStates(),
 ): MutableStateFlow<PagingData<ShallowPokemon>> {
-    val pagingData: PagingData<ShallowPokemon> = PagingData.from(
-        data = pokemonList,
-        sourceLoadStates = sourceLoadStates,
-        mediatorLoadStates = mediatorLoadStates
-    )
+    val pagingData: PagingData<ShallowPokemon> =
+        PagingData.from(
+            data = pokemonList,
+            sourceLoadStates = sourceLoadStates,
+            mediatorLoadStates = mediatorLoadStates,
+        )
     return MutableStateFlow(pagingData)
 }
 
@@ -55,7 +57,7 @@ fun ContentPreviewSmall() {
         val listState = fakeDataFlow().collectAsLazyPagingItems()
         HomeContent(
             listState = listState,
-            gridStyleFlow = MutableStateFlow(GridStyle.SMALL)
+            gridStyleFlow = MutableStateFlow(GridStyle.SMALL),
         )
     }
 }
@@ -63,11 +65,11 @@ fun ContentPreviewSmall() {
 @Preview()
 @Composable
 fun ContentPreviewMedium() {
-    PokemonChallengeTheme() {
+    PokemonChallengeTheme {
         val listState = fakeDataFlow().collectAsLazyPagingItems()
         HomeContent(
             listState = listState,
-            gridStyleFlow = MutableStateFlow(GridStyle.MEDIUM)
+            gridStyleFlow = MutableStateFlow(GridStyle.MEDIUM),
         )
     }
 }
@@ -75,11 +77,11 @@ fun ContentPreviewMedium() {
 @Preview()
 @Composable
 fun ContentPreviewLarge() {
-    PokemonChallengeTheme() {
+    PokemonChallengeTheme {
         val listState = fakeDataFlow().collectAsLazyPagingItems()
         HomeContent(
             listState = listState,
-            gridStyleFlow = MutableStateFlow(GridStyle.LARGE)
+            gridStyleFlow = MutableStateFlow(GridStyle.LARGE),
         )
     }
 }
@@ -87,15 +89,17 @@ fun ContentPreviewLarge() {
 @PreviewLightDark()
 @Composable
 fun ContentPreviewPaginating() {
-    PokemonChallengeTheme() {
-        val listState = fakeDataFlow(
-            mediatorLoadStates = buildLoadStates(
-                append = LoadState.Loading
-            )
-        ).collectAsLazyPagingItems()
+    PokemonChallengeTheme {
+        val listState =
+            fakeDataFlow(
+                mediatorLoadStates =
+                    buildLoadStates(
+                        append = LoadState.Loading,
+                    ),
+            ).collectAsLazyPagingItems()
         HomeContent(
             listState = listState,
-            gridStyleFlow = MutableStateFlow(GridStyle.SMALL)
+            gridStyleFlow = MutableStateFlow(GridStyle.SMALL),
         )
     }
 }
@@ -103,15 +107,17 @@ fun ContentPreviewPaginating() {
 @PreviewLightDark()
 @Composable
 fun ContentPreviewPaginationError() {
-    PokemonChallengeTheme() {
-        val listState = fakeDataFlow(
-            mediatorLoadStates = buildLoadStates(
-                append = LoadState.Error(IllegalStateException("error"))
-            )
-        ).collectAsLazyPagingItems()
+    PokemonChallengeTheme {
+        val listState =
+            fakeDataFlow(
+                mediatorLoadStates =
+                    buildLoadStates(
+                        append = LoadState.Error(IllegalStateException("error")),
+                    ),
+            ).collectAsLazyPagingItems()
         HomeContent(
             listState = listState,
-            gridStyleFlow = MutableStateFlow(GridStyle.SMALL)
+            gridStyleFlow = MutableStateFlow(GridStyle.SMALL),
         )
     }
 }
@@ -119,15 +125,17 @@ fun ContentPreviewPaginationError() {
 @PreviewLightDark()
 @Composable
 fun ContentPreviewError() {
-    PokemonChallengeTheme() {
-        val listState = fakeDataFlow(
-            mediatorLoadStates = buildLoadStates(
-                refresh = LoadState.Loading
-            )
-        ).collectAsLazyPagingItems()
+    PokemonChallengeTheme {
+        val listState =
+            fakeDataFlow(
+                mediatorLoadStates =
+                    buildLoadStates(
+                        refresh = LoadState.Loading,
+                    ),
+            ).collectAsLazyPagingItems()
         HomeContent(
             listState = listState,
-            gridStyleFlow = MutableStateFlow(GridStyle.SMALL)
+            gridStyleFlow = MutableStateFlow(GridStyle.SMALL),
         )
     }
 }
@@ -135,15 +143,17 @@ fun ContentPreviewError() {
 @PreviewLightDark()
 @Composable
 fun ContentPreviewLoading() {
-    PokemonChallengeTheme() {
-        val listState = fakeDataFlow(
-            mediatorLoadStates = buildLoadStates(
-                refresh = LoadState.Error(IllegalStateException("error"))
-            )
-        ).collectAsLazyPagingItems()
+    PokemonChallengeTheme {
+        val listState =
+            fakeDataFlow(
+                mediatorLoadStates =
+                    buildLoadStates(
+                        refresh = LoadState.Error(IllegalStateException("error")),
+                    ),
+            ).collectAsLazyPagingItems()
         HomeContent(
             listState = listState,
-            gridStyleFlow = MutableStateFlow(GridStyle.SMALL)
+            gridStyleFlow = MutableStateFlow(GridStyle.SMALL),
         )
     }
 }

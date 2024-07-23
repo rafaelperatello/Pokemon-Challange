@@ -5,13 +5,10 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 internal data class TcgPlayerDTO(
-
     @SerialName("url")
     var url: String? = null,
-
     @SerialName("updatedAt")
     var updatedAt: String? = null,
-
     @SerialName("prices")
-    var pricesDTO: Map<String, HolofoilDTO>? = emptyMap<String, HolofoilDTO>()
+    var pricesDTO: Map<String, HolofoilDTO>? = emptyMap<String, HolofoilDTO>(),
 )

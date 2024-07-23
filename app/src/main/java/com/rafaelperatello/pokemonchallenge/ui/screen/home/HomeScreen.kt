@@ -45,17 +45,17 @@ import org.koin.androidx.compose.koinViewModel
 internal fun HomeScreen(
     modifier: Modifier = Modifier,
     currentRoute: State<MainRoutes?>,
-    onUpdateAppBarAction: (AppBarAction?) -> Unit
+    onUpdateAppBarAction: (AppBarAction?) -> Unit,
 ) {
-    val viewModel: MainViewModel = koinViewModel<MainViewModel>()
+    val viewModel: HomeViewModel = koinViewModel<HomeViewModel>()
     var showDialog by remember { mutableStateOf(false) }
 
     LaunchedEffect(currentRoute.value) {
         onUpdateAppBarAction(
             AppBarAction(
                 imageVector = Icons.Outlined.Apps,
-                onClick = { showDialog = true }
-            )
+                onClick = { showDialog = true },
+            ),
         )
     }
 
@@ -65,7 +65,7 @@ internal fun HomeScreen(
             onGridStyleUpdated = { style ->
                 viewModel.onGridStyleUpdated(style)
             },
-            onDismissRequest = { showDialog = false }
+            onDismissRequest = { showDialog = false },
         )
     }
 
@@ -78,7 +78,7 @@ internal fun HomeScreen(
         onRetryClick = { listState.retry() },
         onPokemonClick = { pokemon ->
             // Todo navigate to details
-        }
+        },
     )
 }
 
@@ -88,11 +88,11 @@ internal fun HomeContent(
     listState: LazyPagingItems<ShallowPokemon>,
     gridStyleFlow: StateFlow<GridStyle>,
     onRetryClick: () -> Unit = {},
-    onPokemonClick: (ShallowPokemon) -> Unit = {}
+    onPokemonClick: (ShallowPokemon) -> Unit = {},
 ) {
     Surface(
         modifier = modifier,
-        color = MaterialTheme.colorScheme.background
+        color = MaterialTheme.colorScheme.background,
     ) {
         val lazyGridState = rememberLazyGridState()
 
@@ -101,7 +101,7 @@ internal fun HomeContent(
                 LoadingWidget(
                     modifier = Modifier.fillMaxSize(),
                     loadingSize = 64.dp,
-                    strokeWidth = 8.dp
+                    strokeWidth = 8.dp,
                 )
             }
 
@@ -112,7 +112,7 @@ internal fun HomeContent(
                     buttonColor = MaterialTheme.colorScheme.secondary,
                     errorDescription = stringResource(R.string.error_loading_data),
                     errorAction = stringResource(R.string.retry),
-                    onRetryClick = onRetryClick
+                    onRetryClick = onRetryClick,
                 )
             }
 
@@ -123,7 +123,7 @@ internal fun HomeContent(
                     listState = listState,
                     gridStyleFlow = gridStyleFlow,
                     onPokemonClick = onPokemonClick,
-                    onRetryClick = onRetryClick
+                    onRetryClick = onRetryClick,
                 )
             }
         }
@@ -138,7 +138,7 @@ internal fun PokemonGrid(
     listState: LazyPagingItems<ShallowPokemon>,
     gridStyleFlow: StateFlow<GridStyle>,
     onPokemonClick: (ShallowPokemon) -> Unit = {},
-    onRetryClick: () -> Unit = {}
+    onRetryClick: () -> Unit = {},
 ) {
     val gridStyle by gridStyleFlow.collectAsState()
     val columnsCount by remember(gridStyle) {
@@ -147,7 +147,7 @@ internal fun PokemonGrid(
                 GridStyle.SMALL -> 4
                 GridStyle.MEDIUM -> 3
                 GridStyle.LARGE -> 2
-            }
+            },
         )
     }
 
@@ -157,7 +157,7 @@ internal fun PokemonGrid(
                 GridStyle.SMALL -> FilterQuality.None
                 GridStyle.MEDIUM -> FilterQuality.Low
                 GridStyle.LARGE -> FilterQuality.High
-            }
+            },
         )
     }
 
@@ -167,27 +167,27 @@ internal fun PokemonGrid(
         columns = GridCells.Fixed(columnsCount),
         contentPadding = PaddingValues(16.dp, 24.dp),
         verticalArrangement = Arrangement.spacedBy(3.dp),
-        horizontalArrangement = Arrangement.spacedBy(3.dp)
+        horizontalArrangement = Arrangement.spacedBy(3.dp),
     ) {
         items(listState.itemCount, key = { it }) {
             CardItem(
-                color = MaterialTheme.colorScheme.surfaceContainer
+                color = MaterialTheme.colorScheme.surfaceContainer,
             ) {
                 val pokemon = listState[it] ?: return@CardItem
                 PokemonImage(
                     filterQuality = filterQuality,
                     pokemon = pokemon,
                     position = it,
-                    onPokemonClick = onPokemonClick
+                    onPokemonClick = onPokemonClick,
                 )
             }
         }
 
         when (listState.loadState.append) {
             is LoadState.Error -> {
-                item() {
+                item {
                     CardItem(
-                        color = MaterialTheme.colorScheme.errorContainer
+                        color = MaterialTheme.colorScheme.errorContainer,
                     ) {
                         ErrorWidget(
                             modifier = Modifier.fillMaxSize(),
@@ -195,23 +195,23 @@ internal fun PokemonGrid(
                             buttonColor = MaterialTheme.colorScheme.error,
                             onRetryClick = onRetryClick,
                             errorDescription = stringResource(R.string.error_loading_page),
-                            errorAction = stringResource(R.string.retry)
+                            errorAction = stringResource(R.string.retry),
                         )
                     }
                 }
             }
 
             is LoadState.Loading -> {
-                item() {
+                item {
                     CardItem(
-                        color = MaterialTheme.colorScheme.background
+                        color = MaterialTheme.colorScheme.background,
                     ) {
                         LoadingWidget(
                             modifier = Modifier.fillMaxSize(),
                             loadingSize = 48.dp,
                             strokeWidth = 8.dp,
                             color = MaterialTheme.colorScheme.secondary,
-                            trackColor = MaterialTheme.colorScheme.surfaceVariant
+                            trackColor = MaterialTheme.colorScheme.surfaceVariant,
                         )
                     }
                 }

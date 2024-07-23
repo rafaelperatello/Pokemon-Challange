@@ -5,9 +5,11 @@ internal val PokemonSuperTypeToEnum = PokemonSuperType.entries.associateBy { it.
 /**
  * Super types : https://api.pokemontcg.io/v2/supertypes
  */
-internal enum class PokemonSuperType(val type: String) {
+internal enum class PokemonSuperType(
+    val type: String,
+) {
     ENERGY("Energy"),
     POKEMON("Pokémon"),
     TRAINER("Trainer"),
-    UNKNOWN("Unknown")
+    UNKNOWN("Unknown"),
 }

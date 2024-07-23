@@ -15,50 +15,50 @@ import kotlin.coroutines.CoroutineContext
 
 internal class PokemonRemotePagingSource(
     private val pokemonApi: PokemonApi,
-    private val ioContext: CoroutineContext
+    private val ioContext: CoroutineContext,
 ) : PagingSource<Int, ShallowPokemon>() {
-
-    override fun getRefreshKey(state: PagingState<Int, ShallowPokemon>): Int? {
-        return state.anchorPosition?.let { anchorPosition ->
+    override fun getRefreshKey(state: PagingState<Int, ShallowPokemon>): Int? =
+        state.anchorPosition?.let { anchorPosition ->
             state.closestPageToPosition(anchorPosition)?.prevKey?.plus(1)
                 ?: state.closestPageToPosition(anchorPosition)?.nextKey?.minus(1)
         }
-    }
 
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, ShallowPokemon> =
         withContext(ioContext) {
             delay(2000) // Todo remove
 
             val page = params.key ?: 1
-            val result = safeApiCall(
-                mapper = {
-                    it.toTypedDTO { dto -> dto.toMediumPokemon() }
-                },
-                apiCall = {
-                    pokemonApi.getCards(page, params.loadSize)
-                }
-            )
+            val result =
+                safeApiCall(
+                    mapper = {
+                        it.toTypedDTO { dto -> dto.toMediumPokemon() }
+                    },
+                    apiCall = {
+                        pokemonApi.getCards(page, params.loadSize)
+                    },
+                )
 
             Log.d(
                 "PokemonPaging",
-                "RemotePagingSource - page: $page, loadSize: ${params.loadSize}, result: $result"
+                "RemotePagingSource - page: $page, loadSize: ${params.loadSize}, result: $result",
             )
 
             when (result) {
                 is DomainResult.Success -> {
-                    val data = result.data.data.map {
-                        ShallowPokemon(
-                            id = it.id,
-                            name = it.name,
-                            number = it.number,
-                            imageSmall = it.imageSmall,
-                            imageLarge = it.imageLarge
-                        )
-                    }
+                    val data =
+                        result.data.data.map {
+                            ShallowPokemon(
+                                id = it.id,
+                                name = it.name,
+                                number = it.number,
+                                imageSmall = it.imageSmall,
+                                imageLarge = it.imageLarge,
+                            )
+                        }
                     LoadResult.Page(
                         data = data,
                         prevKey = params.key,
-                        nextKey = page + 1
+                        nextKey = page + 1,
                     )
                 }
 

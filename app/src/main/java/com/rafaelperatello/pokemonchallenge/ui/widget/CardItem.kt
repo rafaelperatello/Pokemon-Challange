@@ -12,14 +12,15 @@ import androidx.compose.ui.unit.dp
 @Composable
 internal fun CardItem(
     color: Color,
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ) {
     Surface(
-        modifier = Modifier
-            .aspectRatio(0.72f)
-            .padding(3.dp),
+        modifier =
+            Modifier
+                .aspectRatio(0.72f)
+                .padding(3.dp),
         color = color,
         shape = MaterialTheme.shapes.small,
-        content = content
+        content = content,
     )
 }

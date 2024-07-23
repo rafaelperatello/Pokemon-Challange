@@ -12,7 +12,6 @@ import com.rafaelperatello.pokemonchallenge.data.repository.local.pojo.ShallowPo
 
 @Dao
 internal interface PokemonDao {
-
     // Todo check how to keep isFavorite when updating
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertAllIgnoring(pokemons: List<PokemonEntity>)
@@ -37,16 +36,19 @@ internal interface PokemonDao {
         ORDER BY id DESC
         LIMIT :limit 
         OFFSET :offset
-        """
+        """,
     )
-    suspend fun getAllShallow(limit: Int, offset: Int): List<ShallowPokemonPojo>
+    suspend fun getAllShallow(
+        limit: Int,
+        offset: Int,
+    ): List<ShallowPokemonPojo>
 
     @Query(
         """
         SELECT id, pokemon_id, name, number, image_small, image_large 
         FROM pokemon 
         ORDER BY id DESC
-        """
+        """,
     )
     fun getAllPaging(): PagingSource<Int, ShallowPokemonPojo>
 

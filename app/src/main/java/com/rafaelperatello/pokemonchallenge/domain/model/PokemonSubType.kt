@@ -5,7 +5,9 @@ internal val PokemonSubTypeToEnum = PokemonSubType.entries.associateBy { it.type
 /**
  * Subtypes: https://api.pokemontcg.io/v2/subtypes
  */
-internal enum class PokemonSubType(val type: String) {
+internal enum class PokemonSubType(
+    val type: String,
+) {
     ACE_SPEC("ACE SPEC"),
     ANCIENT("Ancient"),
     BABY("Baby"),
@@ -47,5 +49,5 @@ internal enum class PokemonSubType(val type: String) {
     VMAX("VMAX"),
     VSTAR("VSTAR"),
     V_UNION("V-UNION"),
-    UNKNOWN("Unknown")
+    UNKNOWN("Unknown"),
 }

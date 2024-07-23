@@ -16,42 +16,45 @@ import retrofit2.converter.kotlinx.serialization.asConverterFactory
 import java.io.File
 import java.util.concurrent.TimeUnit
 
-internal val NetworkModule = module {
+internal val NetworkModule =
+    module {
 
-    single {
-        provideHttpClient(
-            context = androidContext()
-        )
-    }
+        single {
+            provideHttpClient(
+                context = androidContext(),
+            )
+        }
 
-    single {
-        provideRetrofit(
-            okHttpClient = get()
-        )
-    }
+        single {
+            provideRetrofit(
+                okHttpClient = get(),
+            )
+        }
 
-    single {
-        provideService(
-            retrofit = get()
-        )
+        single {
+            provideService(
+                retrofit = get(),
+            )
+        }
     }
-}
 
 private fun provideHttpClient(context: Context): OkHttpClient {
     val cacheSize = NetworkConstants.Cache.SIZE
     val cacheDirectory = File(context.cacheDir, NetworkConstants.Cache.DIRECTORY)
     val cache = Cache(cacheDirectory, cacheSize.toLong())
 
-    val networkInterceptor = Interceptor { chain ->
-        val response = chain.proceed(chain.request())
+    val networkInterceptor =
+        Interceptor { chain ->
+            val response = chain.proceed(chain.request())
 
-        // Override cache control headers
-        val cacheControl = "public, max-age=3600"
+            // Override cache control headers
+            val cacheControl = "public, max-age=3600"
 
-        response.newBuilder()
-            .header("Cache-Control", cacheControl)
-            .build()
-    }
+            response
+                .newBuilder()
+                .header("Cache-Control", cacheControl)
+                .build()
+        }
 
     return OkHttpClient
         .Builder()
@@ -62,19 +65,15 @@ private fun provideHttpClient(context: Context): OkHttpClient {
         .build()
 }
 
-private fun provideRetrofit(
-    okHttpClient: OkHttpClient
-): Retrofit {
+private fun provideRetrofit(okHttpClient: OkHttpClient): Retrofit {
     val networkJson = Json { ignoreUnknownKeys = true }
-    return Retrofit.Builder()
+    return Retrofit
+        .Builder()
         .baseUrl(PokemonApiConstants.BASE_URL)
         .client(okHttpClient)
         .addConverterFactory(
-            networkJson.asConverterFactory("application/json; charset=UTF8".toMediaType())
-        )
-        .build()
+            networkJson.asConverterFactory("application/json; charset=UTF8".toMediaType()),
+        ).build()
 }
 
-private fun provideService(retrofit: Retrofit): PokemonApi {
-    return retrofit.create(PokemonApi::class.java)
-}
+private fun provideService(retrofit: Retrofit): PokemonApi = retrofit.create(PokemonApi::class.java)

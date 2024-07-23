@@ -15,58 +15,56 @@ import org.koin.android.ext.koin.androidContext
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
 
-internal val DataModule = module {
+internal val DataModule =
+    module {
 
-    single<PokemonRepository> {
-        PokemonRepositoryImpl(
-            pokemonLocalPagingSource = get(),
-            pokemonRemoteMediator = get(),
-            pokemonDao = get(),
-            pokemonRemotePagingSourceFactory = get()
-        )
+        single<PokemonRepository> {
+            PokemonRepositoryImpl(
+                pokemonLocalPagingSource = get(),
+                pokemonRemoteMediator = get(),
+                pokemonDao = get(),
+                pokemonRemotePagingSourceFactory = get(),
+            )
+        }
+
+        single<PokemonDatabase> {
+            provideDatabase(
+                context = androidContext(),
+            )
+        }
+
+        single<PokemonDao> {
+            get<PokemonDatabase>().pokemonDao()
+        }
+
+        single {
+            PokemonRemotePagingSourceFactory(
+                ioContext = get(named(IO_CONTEXT)),
+                pokemonApi = get(),
+            )
+        }
+
+        single {
+            PokemonLocalPagingSourceFactory(
+                ioContext = get(named(IO_CONTEXT)),
+                pokemonDb = get(),
+            )
+        }
+
+        single {
+            PokemonRemoteMediator(
+                ioContext = get(named(IO_CONTEXT)),
+                pokemonService = get(),
+                pokemonDao = get(),
+            )
+        }
     }
 
-    single<PokemonDatabase> {
-        provideDatabase(
-            context = androidContext()
-        )
-    }
-
-    single<PokemonDao> {
-        get<PokemonDatabase>().pokemonDao()
-    }
-
-    single {
-        PokemonRemotePagingSourceFactory(
-            ioContext = get(named(IO_CONTEXT)),
-            pokemonApi = get()
-        )
-    }
-
-    single {
-        PokemonLocalPagingSourceFactory(
-            ioContext = get(named(IO_CONTEXT)),
-            pokemonDb = get()
-        )
-    }
-
-    single {
-        PokemonRemoteMediator(
-            ioContext = get(named(IO_CONTEXT)),
-            pokemonService = get(),
-            pokemonDao = get()
-        )
-    }
-}
-
-private fun provideDatabase(
-    context: Context
-): PokemonDatabase {
-    return Room.databaseBuilder(
-        context,
-        PokemonDatabase::class.java,
-        PokemonDatabaseConstants.DATABASE_NAME
-    )
-        .addCallback(PokemonDatabaseCallback)
+private fun provideDatabase(context: Context): PokemonDatabase =
+    Room
+        .databaseBuilder(
+            context,
+            PokemonDatabase::class.java,
+            PokemonDatabaseConstants.DATABASE_NAME,
+        ).addCallback(PokemonDatabaseCallback)
         .build()
-}

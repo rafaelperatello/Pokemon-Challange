@@ -5,13 +5,11 @@ import kotlin.coroutines.CoroutineContext
 
 internal class PokemonRemotePagingSourceFactory(
     private val ioContext: CoroutineContext,
-    private val pokemonApi: PokemonApi
+    private val pokemonApi: PokemonApi,
 ) {
-
-    fun create(): PokemonRemotePagingSource {
-        return PokemonRemotePagingSource(
+    fun create(): PokemonRemotePagingSource =
+        PokemonRemotePagingSource(
             ioContext = ioContext,
-            pokemonApi = pokemonApi
+            pokemonApi = pokemonApi,
         )
-    }
 }

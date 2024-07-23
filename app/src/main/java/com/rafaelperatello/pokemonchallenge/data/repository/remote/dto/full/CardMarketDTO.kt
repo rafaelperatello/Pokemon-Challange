@@ -5,13 +5,10 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 internal data class CardMarketDTO(
-
     @SerialName("url")
     var url: String? = null,
-
     @SerialName("updatedAt")
     var updatedAt: String? = null,
-
     @SerialName("prices")
-    var prices: PricesDTO? = PricesDTO()
+    var prices: PricesDTO? = PricesDTO(),
 )

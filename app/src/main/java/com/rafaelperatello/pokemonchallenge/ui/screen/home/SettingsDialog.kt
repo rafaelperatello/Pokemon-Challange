@@ -34,7 +34,7 @@ import com.rafaelperatello.pokemonchallenge.ui.theme.PokemonChallengeTheme
 internal fun HomeSettingsDialog(
     currentGridStyle: GridStyle = GridStyle.SMALL,
     onGridStyleUpdated: (GridStyle) -> Unit = { },
-    onDismissRequest: () -> Unit = { }
+    onDismissRequest: () -> Unit = { },
 ) {
     var selectedStyle by remember {
         mutableStateOf(currentGridStyle)
@@ -51,24 +51,27 @@ internal fun HomeSettingsDialog(
 
     Dialog(onDismissRequest = onDismissRequestInternal) {
         Card(
-            modifier = Modifier
-                .fillMaxWidth()
-                .wrapContentHeight()
-                .padding(16.dp),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .wrapContentHeight()
+                    .padding(16.dp),
         ) {
             Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(8.dp, 24.dp, 8.dp, 8.dp)
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(8.dp, 24.dp, 8.dp, 8.dp),
             ) {
                 val radioOptions = GridStyle.entries.toTypedArray()
 
                 Text(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .align(Alignment.Start)
-                        .padding(start = 16.dp),
-                    text = stringResource(id = R.string.grid_style)
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .align(Alignment.Start)
+                            .padding(start = 16.dp),
+                    text = stringResource(id = R.string.grid_style),
                 )
 
                 Spacer(modifier = Modifier.height(8.dp))
@@ -78,21 +81,21 @@ internal fun HomeSettingsDialog(
                 ) {
                     radioOptions.forEach { gridStyle ->
                         Row(
-                            verticalAlignment = Alignment.CenterVertically
+                            verticalAlignment = Alignment.CenterVertically,
                         ) {
                             RadioButton(
                                 selected = (gridStyle == selectedStyle),
-                                onClick = { selectedStyle = gridStyle }
+                                onClick = { selectedStyle = gridStyle },
                             )
                             Text(
                                 text = stringResource(id = gridStyle.toStringRes()),
                                 style = MaterialTheme.typography.bodyMedium,
-                                modifier = Modifier
-                                    .clip(MaterialTheme.shapes.small)
-                                    .clickable {
-                                        selectedStyle = gridStyle
-                                    }
-                                    .padding(8.dp)
+                                modifier =
+                                    Modifier
+                                        .clip(MaterialTheme.shapes.small)
+                                        .clickable {
+                                            selectedStyle = gridStyle
+                                        }.padding(8.dp),
                             )
                         }
                     }
@@ -114,18 +117,17 @@ internal fun HomeSettingsDialog(
     }
 }
 
-private fun GridStyle.toStringRes(): Int {
-    return when (this) {
+private fun GridStyle.toStringRes(): Int =
+    when (this) {
         GridStyle.SMALL -> R.string.grid_style_small
         GridStyle.MEDIUM -> R.string.grid_style_medium
         GridStyle.LARGE -> R.string.grid_style_large
     }
-}
 
 @PreviewLightDark()
 @Composable
 fun HomeDialogPreview() {
-    PokemonChallengeTheme() {
+    PokemonChallengeTheme {
         HomeSettingsDialog()
     }
 }

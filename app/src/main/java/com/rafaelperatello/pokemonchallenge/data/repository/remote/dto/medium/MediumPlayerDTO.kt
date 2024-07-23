@@ -5,7 +5,6 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 internal data class MediumPlayerDTO(
-
     @SerialName("url")
-    var url: String? = null
+    var url: String? = null,
 )

@@ -16,10 +16,9 @@ internal class PokemonRepositoryImpl(
     private val pokemonLocalPagingSource: PokemonLocalPagingSourceFactory,
     private val pokemonRemoteMediator: PokemonRemoteMediator,
     private val pokemonDao: PokemonDao,
-    private val pokemonRemotePagingSourceFactory: PokemonRemotePagingSourceFactory
+    private val pokemonRemotePagingSourceFactory: PokemonRemotePagingSourceFactory,
 ) : PokemonRepository {
-
-//    @OptIn(ExperimentalPagingApi::class)
+    //    @OptIn(ExperimentalPagingApi::class)
 //    override suspend fun getShallowPokemonList(): Flow<PagingData<ShallowPokemon>> {
 //        return Pager(
 //            config = PagingConfig(
@@ -49,15 +48,14 @@ internal class PokemonRepositoryImpl(
 //            }
 //    }
 
-
-    override suspend fun getShallowPokemonList(): Flow<PagingData<ShallowPokemon>> {
-        return Pager(
-            config = PagingConfig(
-                pageSize = PAGE_SIZE,
-                enablePlaceholders = true,
-                prefetchDistance = 10
-            ),
-            pagingSourceFactory = { pokemonRemotePagingSourceFactory.create() }
+    override suspend fun getShallowPokemonList(): Flow<PagingData<ShallowPokemon>> =
+        Pager(
+            config =
+                PagingConfig(
+                    pageSize = PAGE_SIZE,
+                    enablePlaceholders = true,
+                    prefetchDistance = 10,
+                ),
+            pagingSourceFactory = { pokemonRemotePagingSourceFactory.create() },
         ).flow
-    }
 }

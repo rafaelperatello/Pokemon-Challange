@@ -5,10 +5,8 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 internal data class WeaknessesDTO(
-
     @SerialName("type")
     var type: String? = null,
-
     @SerialName("value")
-    var value: String? = null
+    var value: String? = null,
 )

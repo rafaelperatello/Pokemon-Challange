@@ -27,14 +27,12 @@ import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 
 @Composable
-internal fun SettingsScreen(
-    snackbarHostState: SnackbarHostState
-) {
+internal fun SettingsScreen(snackbarHostState: SnackbarHostState) {
     val database = koinInject<PokemonDatabase>()
 
     SettingsContent(
         database = database,
-        snackbarHostState = snackbarHostState
+        snackbarHostState = snackbarHostState,
     )
 }
 
@@ -50,9 +48,10 @@ internal fun SettingsContent(
         modifier = Modifier.fillMaxSize(),
     ) {
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp, 24.dp)
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .padding(16.dp, 24.dp),
         ) {
             SettingItem(
                 label = "Database", // Todo String resource
@@ -63,10 +62,10 @@ internal fun SettingsContent(
 
                         snackbarHostState.showSnackbar(
                             message = "Database reset", // Todo String resource
-                            duration = SnackbarDuration.Short
+                            duration = SnackbarDuration.Short,
                         )
                     }
-                }
+                },
             )
 
             Spacer(modifier = Modifier.size(16.dp))
@@ -81,10 +80,10 @@ internal fun SettingsContent(
 
                         snackbarHostState.showSnackbar(
                             message = "Http cache cleared", // Todo String resource
-                            duration = SnackbarDuration.Short
+                            duration = SnackbarDuration.Short,
                         )
                     }
-                }
+                },
             )
 
             Spacer(modifier = Modifier.size(16.dp))
@@ -99,10 +98,10 @@ internal fun SettingsContent(
 
                         snackbarHostState.showSnackbar(
                             message = "Image cache cleared", // Todo String resource
-                            duration = SnackbarDuration.Short
+                            duration = SnackbarDuration.Short,
                         )
                     }
-                }
+                },
             )
         }
     }
@@ -117,16 +116,17 @@ internal fun SettingItem(
     Text(
         text = label,
         color = MaterialTheme.colorScheme.onBackground,
-        fontSize = TextUnit(20f, TextUnitType.Sp)
+        fontSize = TextUnit(20f, TextUnitType.Sp),
     )
 
     Spacer(modifier = Modifier.size(8.dp))
 
     ElevatedButton(
-        colors = ButtonDefaults.buttonColors().copy(
-            containerColor = MaterialTheme.colorScheme.secondaryContainer
-        ),
-        onClick = onClick
+        colors =
+            ButtonDefaults.buttonColors().copy(
+                containerColor = MaterialTheme.colorScheme.secondaryContainer,
+            ),
+        onClick = onClick,
     ) {
         Text(
             text = buttonText,

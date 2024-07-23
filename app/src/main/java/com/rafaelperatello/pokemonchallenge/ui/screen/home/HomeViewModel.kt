@@ -16,36 +16,38 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
-internal class MainViewModel(
+internal class HomeViewModel(
     private val repository: PokemonRepository,
-    private val appSettings: AppSettings
+    private val appSettings: AppSettings,
 ) : ViewModel() {
-
     private val _listState: MutableStateFlow<PagingData<ShallowPokemon>> =
         MutableStateFlow(value = PagingData.empty())
     val listState: StateFlow<PagingData<ShallowPokemon>> get() = _listState
 
-    val gridStyle: StateFlow<GridStyle> = appSettings.gridStyle.stateIn(
-        viewModelScope,
-        started = SharingStarted.Eagerly,
-        initialValue = GridStyle.SMALL
-    )
+    val gridStyle: StateFlow<GridStyle> =
+        appSettings.gridStyle.stateIn(
+            viewModelScope,
+            started = SharingStarted.Eagerly,
+            initialValue = GridStyle.SMALL,
+        )
 
     init {
         fetchData()
     }
 
-    private fun fetchData() = viewModelScope.launch {
+    private fun fetchData() =
         viewModelScope.launch {
-            repository.getShallowPokemonList()
-                .distinctUntilChanged()
-                .cachedIn(viewModelScope)
-                .collect {
-                    Log.d("PokemonPaging", "VM - fetchData: $it")
-                    _listState.value = it
-                }
+            viewModelScope.launch {
+                repository
+                    .getShallowPokemonList()
+                    .distinctUntilChanged()
+                    .cachedIn(viewModelScope)
+                    .collect {
+                        Log.d("PokemonPaging", "VM - fetchData: $it")
+                        _listState.value = it
+                    }
+            }
         }
-    }
 
     fun onGridStyleUpdated(style: GridStyle) {
         viewModelScope.launch {

@@ -6,5 +6,5 @@ internal data class ShallowPokemon(
     val name: String = "",
     val number: String = "",
     val imageSmall: String? = null,
-    val imageLarge: String? = null
+    val imageLarge: String? = null,
 )

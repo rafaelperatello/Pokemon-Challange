@@ -16,9 +16,8 @@ internal data class MediumPokemon(
     val imageLarge: String? = null,
     val url: String? = null,
     val setId: String = "",
-    val isFavorite: Boolean = false
+    val isFavorite: Boolean = false,
 ) {
-
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false

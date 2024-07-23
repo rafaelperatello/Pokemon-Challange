@@ -30,50 +30,54 @@ internal fun PokemonImage(
     filterQuality: FilterQuality = FilterQuality.Low,
     pokemon: ShallowPokemon,
     position: Int,
-    onPokemonClick: (ShallowPokemon) -> Unit
+    onPokemonClick: (ShallowPokemon) -> Unit,
 ) {
     val context = LocalContext.current
     val imageUrl = pokemon.imageSmall ?: ""
 
-    val imageRequest = ImageRequest.Builder(context)
-        .data(imageUrl)
-        .dispatcher(Dispatchers.IO)
-        .memoryCacheKey(imageUrl)
-        .diskCacheKey(imageUrl)
-        .diskCachePolicy(CachePolicy.ENABLED)
-        .memoryCachePolicy(CachePolicy.ENABLED)
-        .build()
+    val imageRequest =
+        ImageRequest
+            .Builder(context)
+            .data(imageUrl)
+            .dispatcher(Dispatchers.IO)
+            .memoryCacheKey(imageUrl)
+            .diskCacheKey(imageUrl)
+            .diskCachePolicy(CachePolicy.ENABLED)
+            .memoryCachePolicy(CachePolicy.ENABLED)
+            .build()
 
     Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .clickable {
-                onPokemonClick(pokemon)
-            },
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .clickable {
+                    onPokemonClick(pokemon)
+                },
     ) {
         AsyncImage(
             model = imageRequest,
             contentDescription = pokemon.name,
             contentScale = ContentScale.Fit,
             modifier = Modifier.fillMaxSize(),
-            filterQuality = filterQuality
+            filterQuality = filterQuality,
         )
 
         Text(
             text = (position + 1).toString(),
             color = Color.White,
-            modifier = Modifier
-                .align(Alignment.BottomEnd)
-                .offset((-4).dp, (-4).dp)
-                .background(
-                    color = Color(0xFFFF0000),
-                    shape = RoundedCornerShape(8.dp)
-                )
-                .padding(8.dp, 3.dp),
-            style = TextStyle(
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold
-            )
+            modifier =
+                Modifier
+                    .align(Alignment.BottomEnd)
+                    .offset((-4).dp, (-4).dp)
+                    .background(
+                        color = Color(0xFFFF0000),
+                        shape = RoundedCornerShape(8.dp),
+                    ).padding(8.dp, 3.dp),
+            style =
+                TextStyle(
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold,
+                ),
         )
     }
 }

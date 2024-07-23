@@ -27,12 +27,13 @@ import com.rafaelperatello.pokemonchallenge.ui.theme.PokemonChallengeTheme
 @Composable
 internal fun PokemonAppBar(
     title: String,
-    colors: TopAppBarColors = TopAppBarDefaults.topAppBarColors(
-        containerColor = MaterialTheme.colorScheme.primaryContainer,
-        titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
-        actionIconContentColor = MaterialTheme.colorScheme.onPrimaryContainer
-    ),
-    action: State<AppBarAction?> = mutableStateOf(null)
+    colors: TopAppBarColors =
+        TopAppBarDefaults.topAppBarColors(
+            containerColor = MaterialTheme.colorScheme.primaryContainer,
+            titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+            actionIconContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+        ),
+    action: State<AppBarAction?> = mutableStateOf(null),
 ) {
     CenterAlignedTopAppBar(
         title = {
@@ -41,7 +42,7 @@ internal fun PokemonAppBar(
                 fontWeight = FontWeight.Bold,
                 letterSpacing = TextUnit(1f, TextUnitType.Sp),
                 maxLines = 1,
-                overflow = TextOverflow.Ellipsis
+                overflow = TextOverflow.Ellipsis,
             )
         },
         colors = colors,
@@ -50,17 +51,17 @@ internal fun PokemonAppBar(
                 IconButton(onClick = it.onClick) {
                     Icon(
                         imageVector = it.imageVector,
-                        contentDescription = null
+                        contentDescription = null,
                     )
                 }
             }
-        }
+        },
     )
 }
 
 internal data class AppBarAction(
     val imageVector: ImageVector,
-    val onClick: () -> Unit
+    val onClick: () -> Unit,
 )
 
 @SuppressLint("UnrememberedMutableState")
@@ -68,15 +69,16 @@ internal data class AppBarAction(
 @PreviewLightDark()
 @Composable
 fun AppBarPreviewDefault() {
-    PokemonChallengeTheme() {
+    PokemonChallengeTheme {
         PokemonAppBar(
             title = "Pokémon Cards",
-            action = mutableStateOf(
-                AppBarAction(
-                    imageVector = Icons.Outlined.FavoriteBorder,
-                    onClick = {}
-                )
-            )
+            action =
+                mutableStateOf(
+                    AppBarAction(
+                        imageVector = Icons.Outlined.FavoriteBorder,
+                        onClick = {},
+                    ),
+                ),
         )
     }
 }
@@ -86,20 +88,22 @@ fun AppBarPreviewDefault() {
 @Preview()
 @Composable
 fun AppBarPreviewLight() {
-    PokemonChallengeTheme() {
+    PokemonChallengeTheme {
         PokemonAppBar(
             title = "Pokémon Cards",
-            colors = TopAppBarDefaults.topAppBarColors(
-                containerColor = MaterialTheme.colorScheme.primary,
-                titleContentColor = MaterialTheme.colorScheme.tertiaryContainer,
-                actionIconContentColor = MaterialTheme.colorScheme.surfaceBright
-            ),
-            action = mutableStateOf(
-                AppBarAction(
-                    imageVector = Icons.Outlined.FavoriteBorder,
-                    onClick = {}
-                )
-            )
+            colors =
+                TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    titleContentColor = MaterialTheme.colorScheme.tertiaryContainer,
+                    actionIconContentColor = MaterialTheme.colorScheme.surfaceBright,
+                ),
+            action =
+                mutableStateOf(
+                    AppBarAction(
+                        imageVector = Icons.Outlined.FavoriteBorder,
+                        onClick = {},
+                    ),
+                ),
         )
     }
 }
@@ -112,17 +116,19 @@ fun AppBarPreviewDark() {
     PokemonChallengeTheme(true) {
         PokemonAppBar(
             title = "Pokémon Cards",
-            colors = TopAppBarDefaults.topAppBarColors(
-                containerColor = MaterialTheme.colorScheme.primaryContainer,
-                titleContentColor = MaterialTheme.colorScheme.tertiaryContainer,
-                actionIconContentColor = MaterialTheme.colorScheme.surfaceBright
-            ),
-            action = mutableStateOf(
-                AppBarAction(
-                    imageVector = Icons.Outlined.FavoriteBorder,
-                    onClick = {}
-                )
-            )
+            colors =
+                TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+                    titleContentColor = MaterialTheme.colorScheme.tertiaryContainer,
+                    actionIconContentColor = MaterialTheme.colorScheme.surfaceBright,
+                ),
+            action =
+                mutableStateOf(
+                    AppBarAction(
+                        imageVector = Icons.Outlined.FavoriteBorder,
+                        onClick = {},
+                    ),
+                ),
         )
     }
 }

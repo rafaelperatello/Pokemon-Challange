@@ -5,10 +5,8 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 internal data class MediumImagesDTO(
-
     @SerialName("small")
     var small: String? = null,
-
     @SerialName("large")
-    var large: String? = null
+    var large: String? = null,
 )

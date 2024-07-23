@@ -15,9 +15,8 @@ import kotlin.coroutines.CoroutineContext
 
 internal class AppSettingsImpl(
     private val dataStore: DataStore<Preferences>,
-    private val ioContext: CoroutineContext
+    private val ioContext: CoroutineContext,
 ) : AppSettings {
-
     companion object {
         private val keyGridStyle = intPreferencesKey("keyGridStyle")
     }
@@ -29,15 +28,16 @@ internal class AppSettingsImpl(
             .map { id -> GridStyle.entries.first { it.id == id } }
             .distinctUntilChanged()
 
-
-    override suspend fun setGridStyle(gridStyle: GridStyle): Unit = withContext(ioContext) {
-        dataStore.edit { preferences ->
-            preferences[keyGridStyle] = gridStyle.id
+    override suspend fun setGridStyle(gridStyle: GridStyle): Unit =
+        withContext(ioContext) {
+            dataStore.edit { preferences ->
+                preferences[keyGridStyle] = gridStyle.id
+            }
         }
-    }
 
-    override suspend fun getGridStyle(): GridStyle = withContext(ioContext) {
-        gridStyle.first()
-    }
+    override suspend fun getGridStyle(): GridStyle =
+        withContext(ioContext) {
+            gridStyle.first()
+        }
     // endregion
 }

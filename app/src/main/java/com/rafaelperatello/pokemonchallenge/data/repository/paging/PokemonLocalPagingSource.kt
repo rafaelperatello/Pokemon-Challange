@@ -17,21 +17,20 @@ internal class PokemonLocalPagingSource(
     private val ioContext: CoroutineContext,
     private val pokemonDb: PokemonDatabase,
 ) : PagingSource<Int, ShallowPokemon>() {
+    private val observer =
+        ThreadSafeInvalidationObserver(
+            tables = arrayOf(PokemonDatabaseConstants.Tables.POKEMON),
+            onInvalidated = {
+                invalidate()
+                Log.d("PokemonPaging", "SOURCE - invalidate")
+            },
+        )
 
-    private val observer = ThreadSafeInvalidationObserver(
-        tables = arrayOf(PokemonDatabaseConstants.Tables.POKEMON),
-        onInvalidated = {
-            invalidate()
-            Log.d("PokemonPaging", "SOURCE - invalidate")
-        }
-    )
-
-    override fun getRefreshKey(state: PagingState<Int, ShallowPokemon>): Int? {
-        return state.anchorPosition?.let { anchorPosition ->
+    override fun getRefreshKey(state: PagingState<Int, ShallowPokemon>): Int? =
+        state.anchorPosition?.let { anchorPosition ->
             state.closestPageToPosition(anchorPosition)?.prevKey?.plus(1)
                 ?: state.closestPageToPosition(anchorPosition)?.nextKey?.minus(1)
         }
-    }
 
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, ShallowPokemon> =
         withContext(ioContext) {
@@ -42,13 +41,15 @@ internal class PokemonLocalPagingSource(
 
             Log.d("PokemonPaging", "SOURCE - load: $page, params: $params")
 
-            val data = pokemonDb.pokemonDao().getAllShallow(
-                limit = params.loadSize,
-                offset = offset
-            ).map {
-                it.toShallowPokemon()
-            }
-
+            val data =
+                pokemonDb
+                    .pokemonDao()
+                    .getAllShallow(
+                        limit = params.loadSize,
+                        offset = offset,
+                    ).map {
+                        it.toShallowPokemon()
+                    }
 
             val prevKey = if (page == 1) null else page - 1
             val nextKey =
@@ -60,7 +61,7 @@ internal class PokemonLocalPagingSource(
 
             Log.d(
                 "PokemonPaging",
-                "SOURCE - data: ${data.size}, page: $page, prevKey: $prevKey, nextKey: $nextKey"
+                "SOURCE - data: ${data.size}, page: $page, prevKey: $prevKey, nextKey: $nextKey",
             )
 
             LoadResult.Page(data, prevKey, nextKey)

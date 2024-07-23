@@ -18,26 +18,27 @@ import com.rafaelperatello.pokemonchallenge.ui.theme.PokemonChallengeTheme
 @PreviewLightDark()
 @Composable
 fun ContentPreview() {
-    PokemonChallengeTheme() {
+    PokemonChallengeTheme {
         PokemonScaffold(
             navController = rememberNavController(),
-            currentRoute = remember {
-                mutableStateOf(MainRoutes.Favorites)
-            },
+            currentRoute =
+                remember {
+                    mutableStateOf(MainRoutes.Favorites)
+                },
             body = {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.surfaceContainerLowest
+                    color = MaterialTheme.colorScheme.surfaceContainerLowest,
                 ) {
                     Column(
                         modifier = Modifier.fillMaxSize(),
                         verticalArrangement = Arrangement.Center,
-                        horizontalAlignment = Alignment.CenterHorizontally
+                        horizontalAlignment = Alignment.CenterHorizontally,
                     ) {
                         Text(text = "Favorites")
                     }
                 }
-            }
+            },
         )
     }
 }

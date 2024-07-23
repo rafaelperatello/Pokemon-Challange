@@ -68,7 +68,6 @@ import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 
 class MainActivity : ComponentActivity() {
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -88,22 +87,24 @@ class MainActivity : ComponentActivity() {
             PokemonChallengeTheme {
                 val navController = rememberNavController()
                 val currentBackStackEntry by navController.currentBackStackEntryAsState()
-                val currentRoute: State<MainRoutes> = remember {
-                    derivedStateOf {
-                        currentBackStackEntry?.destination?.route?.let { route ->
-                            when (route) {
-                                MainRoutes.Home::class.qualifiedName -> MainRoutes.Home
-                                MainRoutes.Favorites::class.qualifiedName -> MainRoutes.Favorites
-                                MainRoutes.Settings::class.qualifiedName -> MainRoutes.Settings
-                                else -> null
-                            }
-                        } ?: MainRoutes.Home
+                val currentRoute: State<MainRoutes> =
+                    remember {
+                        derivedStateOf {
+                            currentBackStackEntry?.destination?.route?.let { route ->
+                                when (route) {
+                                    MainRoutes.Home::class.qualifiedName -> MainRoutes.Home
+                                    MainRoutes.Favorites::class.qualifiedName -> MainRoutes.Favorites
+                                    MainRoutes.Settings::class.qualifiedName -> MainRoutes.Settings
+                                    else -> null
+                                }
+                            } ?: MainRoutes.Home
+                        }
                     }
-                }
 
-                val appBarMenuActions: MutableState<AppBarAction?> = remember {
-                    mutableStateOf(null)
-                }
+                val appBarMenuActions: MutableState<AppBarAction?> =
+                    remember {
+                        mutableStateOf(null)
+                    }
                 val onUpdateAppBarAction: (AppBarAction?) -> Unit = { action ->
                     appBarMenuActions.value = action
                 }
@@ -114,19 +115,20 @@ class MainActivity : ComponentActivity() {
                     navController = navController,
                     currentRoute = currentRoute,
                     appBarMenuActions = appBarMenuActions,
-                    snackbarHostState = snackbarHostState
+                    snackbarHostState = snackbarHostState,
                 ) { innerPadding ->
                     Column(
-                        modifier = Modifier
-                            .padding(innerPadding)
-                            .fillMaxSize()
+                        modifier =
+                            Modifier
+                                .padding(innerPadding)
+                                .fillMaxSize(),
                     ) {
                         MainNavHost(
                             navController = navController,
                             startDestination = MainRoutes.Home,
                             currentRoute = currentRoute,
                             snackbarHostState = snackbarHostState,
-                            onUpdateAppBarAction = onUpdateAppBarAction
+                            onUpdateAppBarAction = onUpdateAppBarAction,
                         )
                     }
                 }
@@ -141,7 +143,7 @@ internal fun PokemonScaffold(
     currentRoute: State<MainRoutes> = remember { mutableStateOf(MainRoutes.Home) },
     appBarMenuActions: State<AppBarAction?> = remember { mutableStateOf(null) },
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
-    body: @Composable (PaddingValues) -> Unit = {}
+    body: @Composable (PaddingValues) -> Unit = {},
 ) {
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -158,9 +160,9 @@ internal fun PokemonScaffold(
                         launchSingleTop = true
                         restoreState = true
                     }
-                }
+                },
             )
-        }
+        },
     ) { innerPadding ->
         body(innerPadding)
     }
@@ -175,20 +177,20 @@ internal fun MainAppBar(appBarMenuActions: State<AppBarAction?>) {
             TopAppBarDefaults.topAppBarColors(
                 containerColor = MaterialTheme.colorScheme.primary,
                 titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                actionIconContentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                actionIconContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
             )
         } else {
             TopAppBarDefaults.topAppBarColors(
                 containerColor = MaterialTheme.colorScheme.primary,
                 titleContentColor = MaterialTheme.colorScheme.tertiaryContainer,
-                actionIconContentColor = MaterialTheme.colorScheme.tertiaryContainer
+                actionIconContentColor = MaterialTheme.colorScheme.tertiaryContainer,
             )
         }
 
     PokemonAppBar(
         title = stringResource(id = R.string.title_main),
         action = appBarMenuActions,
-        colors = colors
+        colors = colors,
     )
 }
 
@@ -198,19 +200,19 @@ internal fun MainNavHost(
     startDestination: MainRoutes,
     currentRoute: State<MainRoutes>,
     snackbarHostState: SnackbarHostState,
-    onUpdateAppBarAction: (AppBarAction?) -> Unit = {}
+    onUpdateAppBarAction: (AppBarAction?) -> Unit = {},
 ) {
     NavHost(
         navController = navController,
-        startDestination = startDestination
+        startDestination = startDestination,
     ) {
-        composable<MainRoutes.Home>() {
+        composable<MainRoutes.Home> {
             HomeScreen(
                 currentRoute = currentRoute,
-                onUpdateAppBarAction = onUpdateAppBarAction
+                onUpdateAppBarAction = onUpdateAppBarAction,
             )
         }
-        composable<MainRoutes.Favorites>() {
+        composable<MainRoutes.Favorites> {
             LaunchedEffect(currentRoute.value) {
                 if (currentRoute.value == MainRoutes.Favorites) {
                     onUpdateAppBarAction(null)
@@ -220,12 +222,12 @@ internal fun MainNavHost(
             Column(
                 modifier = Modifier.fillMaxSize(),
                 verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally
+                horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 Text(text = "Favorites")
             }
         }
-        composable<MainRoutes.Settings>() {
+        composable<MainRoutes.Settings> {
             LaunchedEffect(currentRoute.value) {
                 if (currentRoute.value == MainRoutes.Favorites) {
                     onUpdateAppBarAction(null)
@@ -240,16 +242,16 @@ internal fun MainNavHost(
 @Composable
 private fun MainBottomBar(
     currentRoute: State<MainRoutes>,
-    onItemClick: (MainRoutes) -> Unit = {}
+    onItemClick: (MainRoutes) -> Unit = {},
 ) {
     // Todo make it smaller
     NavigationBar(
         containerColor = MaterialTheme.colorScheme.surfaceContainer,
-        modifier = Modifier
-            .windowInsetsPadding(
-                WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal)
-            )
-            .height(100.dp)
+        modifier =
+            Modifier
+                .windowInsetsPadding(
+                    WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal),
+                ).height(100.dp),
     ) {
         mainScreens.forEach { destination ->
             val selected = currentRoute.value == destination.route
@@ -258,36 +260,40 @@ private fun MainBottomBar(
                 modifier = Modifier.defaultMinSize(minWidth = 56.dp),
                 selected = selected,
                 onClick = { onItemClick(destination.route) },
-                colors = NavigationBarItemDefaults.colors().copy(
-                    selectedIndicatorColor = MaterialTheme.colorScheme.primaryContainer,
-                    selectedIconColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                ),
+                colors =
+                    NavigationBarItemDefaults.colors().copy(
+                        selectedIndicatorColor = MaterialTheme.colorScheme.primaryContainer,
+                        selectedIconColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                    ),
                 icon = {
                     val icon =
-                        if (selected) destination.selectedIcon
-                        else destination.unselectedIcon
+                        if (selected) {
+                            destination.selectedIcon
+                        } else {
+                            destination.unselectedIcon
+                        }
 
                     Icon(
                         imageVector = icon,
                         modifier = Modifier.size(24.dp),
-                        contentDescription = null
+                        contentDescription = null,
                     )
-                }
+                },
             )
         }
     }
 }
 
-private val mainScreens = listOf(
-    BottomBarItems.Home,
-    BottomBarItems.Favorites,
-    BottomBarItems.Settings
-)
+private val mainScreens =
+    listOf(
+        BottomBarItems.Home,
+        BottomBarItems.Favorites,
+        BottomBarItems.Settings,
+    )
 
 @Keep
 @Serializable
 sealed class MainRoutes {
-
     @Serializable
     data object Home : MainRoutes()
 
@@ -302,27 +308,26 @@ sealed class BottomBarItems(
     val route: MainRoutes,
     val labelRes: Int,
     val selectedIcon: ImageVector,
-    val unselectedIcon: ImageVector
+    val unselectedIcon: ImageVector,
 ) {
-
     data object Home : BottomBarItems(
         route = MainRoutes.Home,
         labelRes = R.string.home,
         selectedIcon = Icons.Filled.Home,
-        unselectedIcon = Icons.Outlined.Home
+        unselectedIcon = Icons.Outlined.Home,
     )
 
     data object Favorites : BottomBarItems(
         route = MainRoutes.Favorites,
         labelRes = R.string.favorite,
         selectedIcon = Icons.Filled.Favorite,
-        unselectedIcon = Icons.Outlined.FavoriteBorder
+        unselectedIcon = Icons.Outlined.FavoriteBorder,
     )
 
     data object Settings : BottomBarItems(
         route = MainRoutes.Settings,
         labelRes = R.string.settings,
         selectedIcon = Icons.Filled.Settings,
-        unselectedIcon = Icons.Outlined.Settings
+        unselectedIcon = Icons.Outlined.Settings,
     )
 }

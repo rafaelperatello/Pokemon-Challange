@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ProgressIndicatorDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -34,18 +33,18 @@ fun LoadingWidget(
     color: Color = MaterialTheme.colorScheme.secondary,
     trackColor: Color = MaterialTheme.colorScheme.surfaceVariant,
     loadingSize: Dp = 64.dp,
-    strokeWidth: Dp = 8.dp
+    strokeWidth: Dp = 8.dp,
 ) {
     Column(
         modifier = modifier,
         verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         CircularProgressIndicator(
             modifier = Modifier.width(loadingSize),
             color = color,
             trackColor = trackColor,
-            strokeWidth = strokeWidth
+            strokeWidth = strokeWidth,
         )
     }
 }
@@ -57,49 +56,54 @@ fun ErrorWidget(
     buttonColor: Color = MaterialTheme.colorScheme.secondary,
     errorDescription: String,
     errorAction: String,
-    onRetryClick: () -> Unit = {}
+    onRetryClick: () -> Unit = {},
 ) {
     Column(
         modifier = modifier,
         verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         val tagRetry = "tag_retry"
 
-        val annotatedString = buildAnnotatedString {
-            withStyle(
-                style = SpanStyle(
-                    color = textColor,
-                    fontSize = MaterialTheme.typography.bodyLarge.fontSize
-                )
-            ) {
-                append(errorDescription)
-            }
+        val annotatedString =
+            buildAnnotatedString {
+                withStyle(
+                    style =
+                        SpanStyle(
+                            color = textColor,
+                            fontSize = MaterialTheme.typography.bodyLarge.fontSize,
+                        ),
+                ) {
+                    append(errorDescription)
+                }
 
-            append("\n\n")
+                append("\n\n")
 
-            withStyle(
-                style = SpanStyle(
-                    color = buttonColor,
-                    fontSize = TextUnit(20f, TextUnitType.Sp),
-                    fontWeight = FontWeight.Bold
-                )
-            ) {
-                pushStringAnnotation(tag = tagRetry, annotation = tagRetry)
-                append(errorAction)
+                withStyle(
+                    style =
+                        SpanStyle(
+                            color = buttonColor,
+                            fontSize = TextUnit(20f, TextUnitType.Sp),
+                            fontWeight = FontWeight.Bold,
+                        ),
+                ) {
+                    pushStringAnnotation(tag = tagRetry, annotation = tagRetry)
+                    append(errorAction)
+                }
             }
-        }
 
         ClickableText(
             style = TextStyle(textAlign = TextAlign.Center),
             text = annotatedString,
             onClick = { offset ->
-                annotatedString.getStringAnnotations(offset, offset)
-                    .firstOrNull()?.let { span ->
+                annotatedString
+                    .getStringAnnotations(offset, offset)
+                    .firstOrNull()
+                    ?.let { span ->
                         println("Clicked on ${span.item}")
                         onRetryClick()
                     }
-            }
+            },
         )
     }
 }
@@ -107,10 +111,10 @@ fun ErrorWidget(
 @PreviewLightDark()
 @Composable
 fun LoadingWidgetPreview() {
-    PokemonChallengeTheme() {
-        Surface() {
+    PokemonChallengeTheme {
+        Surface {
             LoadingWidget(
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier.fillMaxSize(),
             )
         }
     }
@@ -120,11 +124,11 @@ fun LoadingWidgetPreview() {
 @Composable
 fun ErrorWidgetPreview() {
     PokemonChallengeTheme {
-        Surface() {
+        Surface {
             ErrorWidget(
                 modifier = Modifier.fillMaxSize(),
                 errorDescription = stringResource(R.string.error_loading_data),
-                errorAction = stringResource(R.string.retry)
+                errorAction = stringResource(R.string.retry),
             )
         }
     }

@@ -7,7 +7,7 @@ import com.rafaelperatello.pokemonchallenge.ui.theme.PokemonChallengeTheme
 @PreviewLightDark()
 @Composable
 fun ContentPreviewPaginating() {
-    PokemonChallengeTheme() {
+    PokemonChallengeTheme {
         SettingsContent()
     }
 }
