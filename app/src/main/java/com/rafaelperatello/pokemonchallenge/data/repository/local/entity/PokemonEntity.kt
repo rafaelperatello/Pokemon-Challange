@@ -3,6 +3,7 @@ package com.rafaelperatello.pokemonchallenge.data.repository.local.entity
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.rafaelperatello.pokemonchallenge.data.repository.local.PokemonDatabaseConstants
 import com.rafaelperatello.pokemonchallenge.domain.model.PokemonSubType
 import com.rafaelperatello.pokemonchallenge.domain.model.PokemonSuperType
 import com.rafaelperatello.pokemonchallenge.domain.model.PokemonType
@@ -11,9 +12,13 @@ import com.rafaelperatello.pokemonchallenge.domain.model.PokemonType
 internal data class PokemonEntity(
 
     @PrimaryKey
-    val id: String,
+    @ColumnInfo(name = "pokemon_id", collate = ColumnInfo.NOCASE)
+    val pokemonId: String,
 
-    @ColumnInfo(name = "name")
+    @ColumnInfo(name = "id")
+    val id: Int,
+
+    @ColumnInfo(name = "name", collate = ColumnInfo.NOCASE)
     val name: String,
 
     @ColumnInfo(name = "number")
@@ -50,6 +55,7 @@ internal data class PokemonEntity(
 
         other as PokemonEntity
 
+        if (pokemonId != other.pokemonId) return false
         if (id != other.id) return false
         if (name != other.name) return false
         if (number != other.number) return false
@@ -66,7 +72,8 @@ internal data class PokemonEntity(
     }
 
     override fun hashCode(): Int {
-        var result = id.hashCode()
+        var result = pokemonId.hashCode()
+        result = 31 * result + id
         result = 31 * result + name.hashCode()
         result = 31 * result + number.hashCode()
         result = 31 * result + types.contentHashCode()

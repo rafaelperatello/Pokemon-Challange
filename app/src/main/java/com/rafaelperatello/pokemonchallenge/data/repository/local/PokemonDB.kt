@@ -12,8 +12,11 @@ import com.rafaelperatello.pokemonchallenge.data.repository.local.entity.Pokemon
 internal object PokemonDatabaseConstants {
 
     const val DATABASE_NAME = "pokemon.db"
-
     const val DATABASE_VERSION = 1
+
+    object Tables {
+        const val POKEMON = "pokemon"
+    }
 }
 
 @Database(entities = [PokemonEntity::class], version = DATABASE_VERSION)
