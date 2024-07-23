@@ -1,19 +1,14 @@
-package com.rafaelperatello.pokemonchallenge.data.repository.remote
+package com.rafaelperatello.pokemonchallenge.data.repository.remote.util
 
 import android.util.Log
 import com.rafaelperatello.pokemonchallenge.domain.util.DataError.Network
 import com.rafaelperatello.pokemonchallenge.domain.util.DomainResult
 import retrofit2.Response
 
-object Api {
-
-    const val BASE_URL: String = "https://api.pokemontcg.io/v2/"
-}
-
-suspend inline fun <DTO, DOMAIN> safeApiCall(
-    mapper: (DTO) -> DOMAIN,
-    apiCall: suspend () -> Response<DTO>
-): DomainResult<DOMAIN> {
+inline fun <DTO, ENTITY> safeApiCall(
+    mapper: (DTO) -> ENTITY,
+    apiCall: () -> Response<DTO>
+): DomainResult<ENTITY> {
     try {
         val response = apiCall()
 
