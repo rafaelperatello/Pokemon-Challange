@@ -7,11 +7,16 @@ import com.rafaelperatello.pokemonchallenge.domain.model.PokemonTypeToEnum
 
 internal class PokemonTypeArrayConverter {
     @TypeConverter
-    fun fromPokemonSubTypeArray(value: Array<PokemonType>): String = value.map { it.name }.toTypedArray().joinToString(",")
+    fun fromPokemonSubTypeArray(value: Array<PokemonType>): String =
+        value
+            .map { it.type }
+            .toTypedArray()
+            .joinToString(",")
 
     @TypeConverter
     fun fromStringArray(array: String?): Array<PokemonType> =
         array
+            ?.takeIf { it.isNotBlank() }
             ?.split(",")
             ?.map {
                 PokemonTypeToEnum[it]
