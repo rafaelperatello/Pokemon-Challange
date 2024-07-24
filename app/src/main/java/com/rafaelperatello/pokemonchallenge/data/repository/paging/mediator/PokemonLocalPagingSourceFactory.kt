@@ -1,4 +1,4 @@
-package com.rafaelperatello.pokemonchallenge.data.repository.paging
+package com.rafaelperatello.pokemonchallenge.data.repository.paging.mediator
 
 import com.rafaelperatello.pokemonchallenge.data.repository.local.PokemonDatabase
 import kotlin.coroutines.CoroutineContext

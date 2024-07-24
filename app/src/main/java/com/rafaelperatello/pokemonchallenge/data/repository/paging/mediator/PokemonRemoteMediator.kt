@@ -1,4 +1,4 @@
-package com.rafaelperatello.pokemonchallenge.data.repository.paging
+package com.rafaelperatello.pokemonchallenge.data.repository.paging.mediator
 
 import android.util.Log
 import androidx.paging.ExperimentalPagingApi
@@ -9,7 +9,7 @@ import com.rafaelperatello.pokemonchallenge.data.repository.local.dao.PokemonDao
 import com.rafaelperatello.pokemonchallenge.data.repository.local.pojo.ShallowPokemonPojo
 import com.rafaelperatello.pokemonchallenge.data.repository.remote.PokemonApi
 import com.rafaelperatello.pokemonchallenge.data.repository.remote.dto.medium.toPokemonEntity
-import com.rafaelperatello.pokemonchallenge.data.repository.remote.dto.toTypedDTO
+import com.rafaelperatello.pokemonchallenge.data.repository.remote.dto.mapTo
 import com.rafaelperatello.pokemonchallenge.data.repository.remote.util.safeApiCall
 import com.rafaelperatello.pokemonchallenge.domain.util.DomainResult
 import kotlinx.coroutines.withContext
@@ -62,7 +62,7 @@ internal class PokemonRemoteMediator(
             val netWorkResult =
                 safeApiCall(
                     mapper = {
-                        it.toTypedDTO { dto -> dto.toPokemonEntity() }
+                        it.mapTo { dto -> dto.toPokemonEntity() }
                     },
                     apiCall = {
                         pokemonService.getCards(

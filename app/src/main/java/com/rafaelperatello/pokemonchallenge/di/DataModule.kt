@@ -4,12 +4,11 @@ import android.content.Context
 import androidx.room.Room
 import com.rafaelperatello.pokemonchallenge.data.repository.PokemonRepositoryImpl
 import com.rafaelperatello.pokemonchallenge.data.repository.local.PokemonDatabase
-import com.rafaelperatello.pokemonchallenge.data.repository.local.PokemonDatabaseCallback
 import com.rafaelperatello.pokemonchallenge.data.repository.local.PokemonDatabaseConstants
 import com.rafaelperatello.pokemonchallenge.data.repository.local.dao.PokemonDao
-import com.rafaelperatello.pokemonchallenge.data.repository.paging.PokemonLocalPagingSourceFactory
-import com.rafaelperatello.pokemonchallenge.data.repository.paging.PokemonRemoteMediator
-import com.rafaelperatello.pokemonchallenge.data.repository.paging.PokemonRemotePagingSourceFactory
+import com.rafaelperatello.pokemonchallenge.data.repository.paging.mediator.PokemonLocalPagingSourceFactory
+import com.rafaelperatello.pokemonchallenge.data.repository.paging.mediator.PokemonRemoteMediator
+import com.rafaelperatello.pokemonchallenge.data.repository.paging.remoteonly.PokemonRemotePagingSourceFactory
 import com.rafaelperatello.pokemonchallenge.domain.repository.PokemonRepository
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.qualifier.named
@@ -41,6 +40,7 @@ internal val DataModule =
             PokemonRemotePagingSourceFactory(
                 ioContext = get(named(IO_CONTEXT)),
                 pokemonApi = get(),
+                pokemonDb = get(),
             )
         }
 
@@ -66,5 +66,4 @@ private fun provideDatabase(context: Context): PokemonDatabase =
             context,
             PokemonDatabase::class.java,
             PokemonDatabaseConstants.DATABASE_NAME,
-        ).addCallback(PokemonDatabaseCallback)
-        .build()
+        ).build()

@@ -1,4 +1,4 @@
-package com.rafaelperatello.pokemonchallenge.data.repository.paging
+package com.rafaelperatello.pokemonchallenge.data.repository.paging.mediator
 
 import android.annotation.SuppressLint
 import android.util.Log
@@ -8,6 +8,7 @@ import androidx.room.paging.util.ThreadSafeInvalidationObserver
 import com.rafaelperatello.pokemonchallenge.data.repository.local.PokemonDatabase
 import com.rafaelperatello.pokemonchallenge.data.repository.local.PokemonDatabaseConstants
 import com.rafaelperatello.pokemonchallenge.data.repository.local.pojo.toShallowPokemon
+import com.rafaelperatello.pokemonchallenge.data.repository.paging.PagerConstants
 import com.rafaelperatello.pokemonchallenge.domain.model.shallow.ShallowPokemon
 import kotlinx.coroutines.withContext
 import kotlin.coroutines.CoroutineContext
