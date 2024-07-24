@@ -63,7 +63,7 @@ internal fun PokemonImage(
         )
 
         Text(
-            text = (position + 1).toString(),
+            text = pokemon.id.toString(),
             color = Color.White,
             modifier =
                 Modifier

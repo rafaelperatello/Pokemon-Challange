@@ -18,7 +18,7 @@ internal data class PokemonListDTO<T>(
     var totalCount: Int,
 )
 
-internal fun <T, R> PokemonListDTO<T>.toTypedDTO(mapper: (T) -> R) =
+internal fun <T, R> PokemonListDTO<T>.mapTo(mapper: (T) -> R) =
     PokemonList<R>(
         data = data.map { mapper(it) },
         page = page,

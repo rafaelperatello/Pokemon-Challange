@@ -12,7 +12,10 @@ inline fun <DTO, ENTITY> safeApiCall(
     try {
         val response = apiCall()
 
-        Log.i("Cache info", response.raw().cacheResponse.toString())
+        Log.i(
+            "Cache info",
+            "${response.raw().request.url} | from cache: ${response.raw().cacheResponse != null}"
+        )
 
         if (response.isSuccessful) {
             val body = response.body()
