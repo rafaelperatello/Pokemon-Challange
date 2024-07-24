@@ -36,4 +36,6 @@ limiting.
 
 [Pokémon Splash Logo](https://logowik.com/pokemon-logo-vector-31925.html)
 [Pokémon App Icon](https://upload.wikimedia.org/wikipedia/commons/5/53/Pok%C3%A9_Ball_icon.svg)
-[Layout Inspiration](https://dribbble.com/shots/6540871-Pokedex-App)
+[Layout Inspiration 1](https://dribbble.com/shots/6540871-Pokedex-App)
+[Layout Inspiration 2](https://dribbble.com/shots/22539361-Pokedesk-Pok-mon-Card-App-Collector)
+[Layout Inspiration 3](https://dribbble.com/shots/9430902-Pokemon-TCG-App)
