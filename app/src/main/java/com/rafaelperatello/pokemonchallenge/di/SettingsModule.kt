@@ -8,7 +8,7 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.preferencesDataStoreFile
 import com.rafaelperatello.pokemonchallenge.SettingsModuleConstants
-import com.rafaelperatello.pokemonchallenge.data.settings.AppSettingsImpl
+import com.rafaelperatello.pokemonchallenge.settings.AppSettingsImpl
 import com.rafaelperatello.pokemonchallenge.domain.settings.AppSettings
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
