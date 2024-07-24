@@ -3,8 +3,8 @@ package com.rafaelperatello.pokemonchallenge.data.repository.local
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
-import androidx.sqlite.db.SupportSQLiteDatabase
 import com.rafaelperatello.pokemonchallenge.data.repository.local.PokemonDatabaseConstants.DATABASE_VERSION
+import com.rafaelperatello.pokemonchallenge.data.repository.local.converters.LocalDateTimeConverter
 import com.rafaelperatello.pokemonchallenge.data.repository.local.converters.PokemonSubTypeArrayConverter
 import com.rafaelperatello.pokemonchallenge.data.repository.local.converters.PokemonTypeArrayConverter
 import com.rafaelperatello.pokemonchallenge.data.repository.local.dao.PokemonDao
@@ -23,6 +23,7 @@ internal object PokemonDatabaseConstants {
 @TypeConverters(
     PokemonSubTypeArrayConverter::class,
     PokemonTypeArrayConverter::class,
+    LocalDateTimeConverter::class
 )
 internal abstract class PokemonDatabase : RoomDatabase() {
     abstract fun pokemonDao(): PokemonDao
