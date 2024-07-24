@@ -11,6 +11,7 @@ import com.rafaelperatello.pokemonchallenge.domain.model.PokemonTypeToEnum
 import com.rafaelperatello.pokemonchallenge.domain.model.medium.MediumPokemon
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import java.time.LocalDateTime
 
 @Serializable
 internal data class MediumPokemonDTO(
@@ -36,7 +37,7 @@ internal data class MediumPokemonDTO(
 
 internal fun MediumPokemonDTO.toPokemonEntity() =
     PokemonEntity(
-        id = 0,
+        id = null,
         pokemonId = id,
         name = name,
         number = number,
@@ -84,6 +85,7 @@ internal fun MediumPokemonDTO.toPokemonEntity() =
                         PokemonSubType.UNKNOWN
                     }
                 }.toTypedArray(),
+        insertAt = LocalDateTime.now(),
     )
 
 internal fun MediumPokemonDTO.toMediumPokemon() =
