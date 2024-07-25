@@ -9,6 +9,7 @@ import com.rafaelperatello.pokemonchallenge.data.repository.local.dao.PokemonDao
 import com.rafaelperatello.pokemonchallenge.data.repository.paging.mediator.PokemonLocalPagingSourceFactory
 import com.rafaelperatello.pokemonchallenge.data.repository.paging.mediator.PokemonRemoteMediator
 import com.rafaelperatello.pokemonchallenge.data.repository.paging.remoteonly.PokemonRemotePagingSourceFactory
+import com.rafaelperatello.pokemonchallenge.di.CoroutineConstants.IO_CONTEXT
 import com.rafaelperatello.pokemonchallenge.domain.repository.PokemonRepository
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.qualifier.named

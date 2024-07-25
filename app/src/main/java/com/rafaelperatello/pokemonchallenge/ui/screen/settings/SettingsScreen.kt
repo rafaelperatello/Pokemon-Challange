@@ -1,108 +1,156 @@
 package com.rafaelperatello.pokemonchallenge.ui.screen.settings
 
+import android.util.Log
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.ElevatedButton
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.State
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.unit.TextUnit
-import androidx.compose.ui.unit.TextUnitType
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import com.rafaelperatello.pokemonchallenge.ImageConstants
-import com.rafaelperatello.pokemonchallenge.NetworkConstants
-import com.rafaelperatello.pokemonchallenge.data.repository.local.PokemonDatabase
-import kotlinx.coroutines.launch
-import org.koin.compose.koinInject
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import com.rafaelperatello.pokemonchallenge.R
+import org.koin.androidx.compose.koinViewModel
 
 @Composable
 internal fun SettingsScreen(snackbarHostState: SnackbarHostState) {
-    val database = koinInject<PokemonDatabase>()
+    val viewModel: SettingsViewModel = koinViewModel<SettingsViewModel>()
 
-    SettingsContent(
-        database = database,
-        snackbarHostState = snackbarHostState,
-    )
+
+    val lifecycleOwner = LocalLifecycleOwner.current
+    val lifecycleState by lifecycleOwner.lifecycle.currentStateFlow.collectAsState()
+    LaunchedEffect(lifecycleState) {
+        Log.d("SettingsScreen", "lifecycleState: $lifecycleState")
+        if (lifecycleState == Lifecycle.State.RESUMED) {
+            viewModel.onRefresh()
+            Log.d("SettingsScreen", "onRefresh")
+        }
+    }
+
+
+    val settingsState by viewModel.settingState.collectAsState()
+    val settingsViewEvent by viewModel.viewEvent.collectAsState()
+
+    val context = LocalContext.current
+
+    LaunchedEffect(key1 = settingsViewEvent) {
+        val event = settingsViewEvent
+        if (event.consumed) return@LaunchedEffect
+
+        when (event) {
+            SettingsViewEvent.None -> Unit
+
+            is SettingsViewEvent.ShowSnackbar -> {
+                val message =
+                    when (event.snackbarType) {
+                        SnackbarType.DATABASE_RESET -> R.string.snackbar_database_reset
+                        SnackbarType.HTTP_CACHE_CLEARED -> R.string.snackbar_http_cleared
+                        SnackbarType.IMAGE_CACHE_CLEARED -> R.string.snackbar_image_cleared
+                    }
+
+                snackbarHostState.showSnackbar(
+                    message = context.getString(message),
+                    duration = SnackbarDuration.Short,
+                )
+
+                event.consumed = true
+            }
+        }
+
+        event.consumed = true
+    }
+
+    val descriptionHttp =
+        remember(settingsState) {
+            mutableStateOf(
+                context.getString(
+                    R.string.description_cache_size_kb,
+                    settingsState.httpCacheSize,
+                )
+            )
+        }
+
+    val descriptionImage =
+        remember(settingsState) {
+            mutableStateOf(
+                context.getString(
+                    R.string.description_cache_size_kb,
+                    settingsState.imageCacheSize,
+                )
+            )
+        }
+
+    val settingItemDataList =
+        listOf(
+            SettingItemData(
+                label = stringResource(id = R.string.setting_database),
+                description = remember { mutableStateOf(context.getString(R.string.description_reset_pokemon_table)) },
+                buttonText = stringResource(id = R.string.reset),
+                onClick = { viewModel.onClearDatabase() },
+            ),
+            SettingItemData(
+                label = stringResource(id = R.string.setting_http),
+                description = descriptionHttp,
+                buttonText = stringResource(id = R.string.clear),
+                onClick = { viewModel.onClearHttpCache() },
+            ),
+            SettingItemData(
+                label = stringResource(id = R.string.setting_image),
+                description = descriptionImage,
+                buttonText = stringResource(id = R.string.clear),
+                onClick = { viewModel.onClearImageCache() },
+            ),
+        )
+
+    SettingsContent(settingItemDataList)
 }
 
 @Composable
 internal fun SettingsContent(
-    database: PokemonDatabase? = null,
-    snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
+    settingsState: List<SettingItemData>,
 ) {
-    val coroutineScope = rememberCoroutineScope()
-    val context = LocalContext.current
-
     Surface(
         modifier = Modifier.fillMaxSize(),
     ) {
         Column(
             modifier =
-                Modifier
-                    .fillMaxSize()
-                    .padding(16.dp, 24.dp),
+            Modifier
+                .fillMaxSize()
+                .padding(16.dp, 24.dp),
         ) {
-            SettingItem(
-                label = "Database", // Todo String resource
-                buttonText = "Reset", // Todo String resource
-                onClick = {
-                    coroutineScope.launch {
-                        database?.pokemonDao()?.deleteAll()
+            settingsState.forEach {
+                SettingItem(
+                    label = it.label,
+                    description = it.description.value,
+                    buttonText = it.buttonText,
+                    onClick = it.onClick,
+                )
 
-                        snackbarHostState.showSnackbar(
-                            message = "Database reset", // Todo String resource
-                            duration = SnackbarDuration.Short,
-                        )
-                    }
-                },
-            )
-
-            Spacer(modifier = Modifier.size(16.dp))
-
-            SettingItem(
-                label = "Http Cache", // Todo String resource
-                buttonText = "Clear", // Todo String resource
-                onClick = {
-                    coroutineScope.launch {
-                        val dir = context.cacheDir.resolve(NetworkConstants.Cache.DIRECTORY)
-                        dir.deleteRecursively()
-
-                        snackbarHostState.showSnackbar(
-                            message = "Http cache cleared", // Todo String resource
-                            duration = SnackbarDuration.Short,
-                        )
-                    }
-                },
-            )
-
-            Spacer(modifier = Modifier.size(16.dp))
-
-            SettingItem(
-                label = "Image Cache", // Todo String resource
-                buttonText = "Clear", // Todo String resource
-                onClick = {
-                    coroutineScope.launch {
-                        val dir = context.cacheDir.resolve(ImageConstants.Cache.DIRECTORY)
-                        dir.deleteRecursively()
-
-                        snackbarHostState.showSnackbar(
-                            message = "Image cache cleared", // Todo String resource
-                            duration = SnackbarDuration.Short,
-                        )
-                    }
-                },
-            )
+                Spacer(modifier = Modifier.size(16.dp))
+            }
         }
     }
 }
@@ -110,27 +158,57 @@ internal fun SettingsContent(
 @Composable
 internal fun SettingItem(
     label: String,
+    description: String,
     buttonText: String,
     onClick: () -> Unit = {},
 ) {
-    Text(
-        text = label,
-        color = MaterialTheme.colorScheme.onBackground,
-        fontSize = TextUnit(20f, TextUnitType.Sp),
-    )
-
-    Spacer(modifier = Modifier.size(8.dp))
-
-    ElevatedButton(
-        colors =
-            ButtonDefaults.buttonColors().copy(
-                containerColor = MaterialTheme.colorScheme.secondaryContainer,
-            ),
-        onClick = onClick,
+    OutlinedCard(
+        modifier = Modifier.fillMaxWidth(),
     ) {
-        Text(
-            text = buttonText,
-            color = MaterialTheme.colorScheme.onSecondaryContainer,
-        )
+        Column(
+            modifier = Modifier.padding(16.dp),
+        ) {
+            Text(
+                text = label,
+                color = MaterialTheme.colorScheme.onBackground,
+                fontSize = MaterialTheme.typography.titleLarge.fontSize,
+            )
+
+            Spacer(modifier = Modifier.size(8.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.Bottom,
+            ) {
+                Text(
+                    modifier = Modifier.weight(1f),
+                    text = description,
+                    color = MaterialTheme.colorScheme.onBackground,
+                )
+
+                Spacer(modifier = Modifier.size(8.dp))
+
+                FilledTonalButton(
+                    modifier = Modifier.wrapContentWidth(),
+                    colors = ButtonDefaults.buttonColors().copy(
+                        containerColor = MaterialTheme.colorScheme.tertiaryContainer,
+                    ),
+                    onClick = onClick,
+                ) {
+                    Text(
+                        text = buttonText,
+                        color = MaterialTheme.colorScheme.onTertiaryContainer,
+                    )
+                }
+            }
+        }
     }
 }
+
+internal data class SettingItemData(
+    val label: String,
+    val description: State<String>,
+    val buttonText: String,
+    val onClick: () -> Unit = {},
+)

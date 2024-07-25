@@ -4,6 +4,7 @@ import android.content.Context
 import com.rafaelperatello.pokemonchallenge.NetworkConstants
 import com.rafaelperatello.pokemonchallenge.data.repository.remote.PokemonApi
 import com.rafaelperatello.pokemonchallenge.data.repository.remote.PokemonApiConstants
+import com.rafaelperatello.pokemonchallenge.getHttpCacheDir
 import kotlinx.serialization.json.Json
 import okhttp3.Cache
 import okhttp3.Interceptor
@@ -13,7 +14,6 @@ import org.koin.android.ext.koin.androidContext
 import org.koin.dsl.module
 import retrofit2.Retrofit
 import retrofit2.converter.kotlinx.serialization.asConverterFactory
-import java.io.File
 import java.util.concurrent.TimeUnit
 
 internal val NetworkModule =
@@ -40,7 +40,7 @@ internal val NetworkModule =
 
 private fun provideHttpClient(context: Context): OkHttpClient {
     val cacheSize = NetworkConstants.Cache.SIZE
-    val cacheDirectory = File(context.cacheDir, NetworkConstants.Cache.DIRECTORY)
+    val cacheDirectory = context.getHttpCacheDir()
     val cache = Cache(cacheDirectory, cacheSize.toLong())
 
     val networkInterceptor =

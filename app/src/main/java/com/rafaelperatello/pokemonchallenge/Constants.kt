@@ -1,5 +1,8 @@
 package com.rafaelperatello.pokemonchallenge
 
+import android.content.Context
+import java.io.File
+
 internal object ImageConstants {
     object Cache {
         const val DIRECTORY = "image_cache"
@@ -17,4 +20,18 @@ internal object NetworkConstants {
 
 internal object SettingsModuleConstants {
     const val DATA_STORE_PREFERENCES_NAME = "app_preferences"
+}
+
+internal fun Context.getImageCacheDir(): File {
+    cacheDir.resolve(ImageConstants.Cache.DIRECTORY).let {
+        if (!it.exists()) it.mkdirs()
+        return it
+    }
+}
+
+internal fun Context.getHttpCacheDir(): File {
+    cacheDir.resolve(NetworkConstants.Cache.DIRECTORY).let {
+        if (!it.exists()) it.mkdirs()
+        return it
+    }
 }

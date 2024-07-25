@@ -5,16 +5,31 @@
 
     <string name="error_loading_data">Error loading data</string>
     <string name="error_loading_page">Error loading page</string>
-    <string name="retry">Retry</string>
-    <string name="close">Close</string>
 
     <string name="grid_style">Grid style</string>
     <string name="grid_style_small">Small</string>
     <string name="grid_style_medium">Medium</string>
     <string name="grid_style_large">Large</string>
 
+    <string name="retry">Retry</string>
+    <string name="close">Close</string>
+    <string name="clear">Clear</string>
+    <string name="reset">Reset</string>
+
     <string name="home">Home</string>
     <string name="favorite">Favorites</string>
     <string name="settings">Settings</string>
+
+    <string name="setting_database">Database</string>
+    <string name="setting_http">Http</string>
+    <string name="setting_image">Image</string>
+
+    <string name="description_reset_pokemon_table">Reset the database</string>
+    <string name="description_cache_size_kb">Cache size: %1$d KB</string>
+
+    <string name="snackbar_database_reset">Database reset</string>
+    <string name="snackbar_http_cleared">Http cache cleared</string>
+    <string name="snackbar_image_cleared">"Image cache cleared"</string>
+
 
 </resources>
