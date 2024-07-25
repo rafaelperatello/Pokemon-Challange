@@ -61,7 +61,7 @@ internal class PokemonRemoteMediator(
 
             val netWorkResult =
                 safeApiCall(
-                    mapper = {
+                    dtoToEntityMapper = {
                         it.mapTo { dto -> dto.toPokemonEntity() }
                     },
                     apiCall = {

@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import com.rafaelperatello.pokemonchallenge.data.repository.local.PokemonDatabase
+import com.rafaelperatello.pokemonchallenge.data.repository.local.dao.PokemonDao
 import com.rafaelperatello.pokemonchallenge.data.repository.local.pojo.toShallowPokemon
 import com.rafaelperatello.pokemonchallenge.data.repository.remote.PokemonApi
 import com.rafaelperatello.pokemonchallenge.data.repository.remote.dto.mapTo
@@ -11,15 +12,15 @@ import com.rafaelperatello.pokemonchallenge.data.repository.remote.dto.medium.to
 import com.rafaelperatello.pokemonchallenge.data.repository.remote.util.safeApiCall
 import com.rafaelperatello.pokemonchallenge.domain.model.shallow.ShallowPokemon
 import com.rafaelperatello.pokemonchallenge.domain.util.DomainResult
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import kotlin.coroutines.CoroutineContext
 
-internal class PokemonRemotePagingSource(
+internal class PokemonUnifiedPagingSource(
     private val pokemonApi: PokemonApi,
     private val ioContext: CoroutineContext,
     private val pokemonDb: PokemonDatabase,
 ) : PagingSource<Int, ShallowPokemon>() {
+
     override fun getRefreshKey(state: PagingState<Int, ShallowPokemon>): Int? =
         state.anchorPosition?.let { anchorPosition ->
             state.closestPageToPosition(anchorPosition)?.prevKey?.plus(1)
@@ -28,13 +29,32 @@ internal class PokemonRemotePagingSource(
 
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, ShallowPokemon> =
         withContext(ioContext) {
-            delay(500) // Todo remove
-
             val page = params.key ?: 1
             val pageSize = params.loadSize
+            val offset = (page - 1) * pageSize
+
+            // Check presence in local db
+            val pokemonDao = pokemonDb.pokemonDao()
+            val shallowPokemonList = pokemonDao.getShallowPokemonList(pageSize, offset)
+
+            if (shallowPokemonList.size == pageSize) {
+                val nextKey = page + 1
+
+                Log.d(
+                    "PokemonPaging",
+                    "LocalPagingSource - DB hit - page: $page, pageSize: ${pageSize}, nextKey: $nextKey"
+                )
+                return@withContext LoadResult.Page(
+                    data = shallowPokemonList,
+                    prevKey = params.key,
+                    nextKey = nextKey,
+                )
+            }
+
+            // Fetch from remote
             val result =
                 safeApiCall(
-                    mapper = {
+                    dtoToEntityMapper = {
                         it.mapTo { dto -> dto.toPokemonEntity() }
                     },
                     apiCall = {
@@ -51,7 +71,6 @@ internal class PokemonRemotePagingSource(
                 is DomainResult.Success -> {
                     val pokemonEntityList = result.data.data
 
-                    val pokemonDao = pokemonDb.pokemonDao()
                     val affectedRows = pokemonDao.insertAllIgnoring(pokemonEntityList)
 
                     Log.d(
@@ -59,25 +78,17 @@ internal class PokemonRemotePagingSource(
                         "RemotePagingSource - affectedRows: $affectedRows"
                     )
 
-                    val all = pokemonDao.getAll()/// todo remove
-                    val count = all.size/// todo remove
-
-                    val offset = (page - 1) * pageSize
-                    val shallowPokemonList =
-                        pokemonDao.getAllShallow(
-                            limit = pageSize,
-                            offset = offset
-                        ).map { it.toShallowPokemon() }
+                    val freshShallowPokemonList = pokemonDao.getShallowPokemonList(pageSize, offset)
 
                     val nextKey =
                         when {
-                            shallowPokemonList.isEmpty() -> null
-                            shallowPokemonList.size < pageSize -> null
+                            freshShallowPokemonList.isEmpty() -> null
+                            freshShallowPokemonList.size < pageSize -> null
                             else -> page + 1
                         }
 
                     LoadResult.Page(
-                        data = shallowPokemonList,
+                        data = freshShallowPokemonList,
                         prevKey = params.key,
                         nextKey = nextKey,
                     )
@@ -88,4 +99,14 @@ internal class PokemonRemotePagingSource(
                 }
             }
         }
+
+    private suspend fun PokemonDao.getShallowPokemonList(
+        pageSize: Int,
+        offset: Int
+    ) = this.getAllShallow(
+        limit = pageSize,
+        offset = offset
+    ).map {
+        it.toShallowPokemon()
+    }
 }

@@ -9,8 +9,8 @@ internal class PokemonRemotePagingSourceFactory(
     private val pokemonApi: PokemonApi,
     private val pokemonDb: PokemonDatabase,
 ) {
-    fun create(): PokemonRemotePagingSource =
-        PokemonRemotePagingSource(
+    fun create(): PokemonUnifiedPagingSource =
+        PokemonUnifiedPagingSource(
             ioContext = ioContext,
             pokemonApi = pokemonApi,
             pokemonDb = pokemonDb,

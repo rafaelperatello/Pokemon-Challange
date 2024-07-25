@@ -6,7 +6,7 @@ import com.rafaelperatello.pokemonchallenge.domain.util.DomainResult
 import retrofit2.Response
 
 inline fun <DTO, ENTITY> safeApiCall(
-    mapper: (DTO) -> ENTITY,
+    dtoToEntityMapper: (DTO) -> ENTITY,
     apiCall: () -> Response<DTO>,
 ): DomainResult<ENTITY> {
     try {
@@ -20,7 +20,7 @@ inline fun <DTO, ENTITY> safeApiCall(
         if (response.isSuccessful) {
             val body = response.body()
             body?.let {
-                return DomainResult.Success(mapper(body))
+                return DomainResult.Success(dtoToEntityMapper(body))
             }
         }
 
