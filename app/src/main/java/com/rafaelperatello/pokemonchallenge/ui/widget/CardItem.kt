@@ -6,6 +6,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 
@@ -15,10 +16,10 @@ internal fun CardItem(
     content: @Composable () -> Unit,
 ) {
     Surface(
-        modifier =
-            Modifier
-                .aspectRatio(0.72f)
-                .padding(3.dp),
+        modifier = Modifier
+            .aspectRatio(0.72f)
+            .padding(3.dp)
+            .clip(MaterialTheme.shapes.small),
         color = color,
         shape = MaterialTheme.shapes.small,
         content = content,

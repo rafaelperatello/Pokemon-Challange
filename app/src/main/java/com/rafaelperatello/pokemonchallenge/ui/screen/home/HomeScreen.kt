@@ -1,13 +1,32 @@
 package com.rafaelperatello.pokemonchallenge.ui.screen.home
 
 import android.annotation.SuppressLint
+import android.util.Log
+import androidx.activity.compose.BackHandler
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedVisibilityScope
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionLayout
+import androidx.compose.animation.SharedTransitionScope
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Apps
 import androidx.compose.material3.MaterialTheme
@@ -22,12 +41,18 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.FilterQuality
+import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
+import coil.compose.AsyncImage
 import com.rafaelperatello.pokemonchallenge.MainRoutes
 import com.rafaelperatello.pokemonchallenge.R
 import com.rafaelperatello.pokemonchallenge.domain.model.shallow.ShallowPokemon
@@ -76,19 +101,16 @@ internal fun HomeScreen(
         listState = listState,
         gridStyleFlow = viewModel.gridStyle,
         onRetryClick = { listState.retry() },
-        onPokemonClick = { pokemon ->
-            // Todo navigate to details
-        },
     )
 }
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
 internal fun HomeContent(
     modifier: Modifier = Modifier,
     listState: LazyPagingItems<ShallowPokemon>,
     gridStyleFlow: StateFlow<GridStyle>,
     onRetryClick: () -> Unit = {},
-    onPokemonClick: (ShallowPokemon) -> Unit = {},
 ) {
     Surface(
         modifier = modifier,
@@ -117,20 +139,99 @@ internal fun HomeContent(
             }
 
             else -> {
-                PokemonGrid(
-                    modifier = Modifier.fillMaxSize(),
-                    lazyGridState = lazyGridState,
-                    listState = listState,
-                    gridStyleFlow = gridStyleFlow,
-                    onPokemonClick = onPokemonClick,
-                    onRetryClick = onRetryClick,
-                )
+                var selectedPokemon by remember {
+                    mutableStateOf<ShallowPokemon?>(null)
+                }
+
+                var showDetails by remember {
+                    mutableStateOf(false)
+                }
+
+                SharedTransitionLayout() {
+                    AnimatedContent(
+                        targetState = showDetails,
+                        label = "card_transition",
+
+                        ) { targetState ->
+                        if (!targetState) {
+                            with(this@AnimatedContent) {
+                                PokemonGrid(
+                                    modifier = Modifier
+                                        .fillMaxSize(),
+                                    lazyGridState = lazyGridState,
+                                    listState = listState,
+                                    gridStyleFlow = gridStyleFlow,
+                                    onPokemonClick = {
+                                        selectedPokemon = it
+                                        showDetails = true
+                                    },
+                                    onRetryClick = onRetryClick,
+                                    animatedVisibilityScope = this,
+                                    sharedTransitionScope = this@SharedTransitionLayout
+                                )
+                            }
+                        } else {
+                            DetailsContent(
+                                modifier = Modifier.fillMaxSize(),
+                                pokemon = selectedPokemon!!,
+                                animatedVisibilityScope = this,
+                                sharedTransitionScope = this@SharedTransitionLayout,
+                                onBack = {
+                                    showDetails = false
+//                                    selectedPokemon = null
+                                }
+                            )
+                        }
+                    }
+                }
             }
         }
     }
 }
 
-// Todo validate stability api
+@OptIn(ExperimentalSharedTransitionApi::class)
+@Composable
+private fun DetailsContent(
+    modifier: Modifier = Modifier,
+    pokemon: ShallowPokemon,
+    sharedTransitionScope: SharedTransitionScope,
+    animatedVisibilityScope: AnimatedVisibilityScope,
+    onBack: () -> Unit,
+) {
+    Column(
+        modifier = modifier
+            .padding(24.dp)
+            .clip(MaterialTheme.shapes.medium),
+    ) {
+        BackHandler(true) {
+            onBack()
+        }
+
+        with(sharedTransitionScope) {
+            PokemonImage(
+                modifier = Modifier
+                    .sharedElement(
+                        state = rememberSharedContentState("pokemon-${pokemon.imageSmall}"),
+                        animatedVisibilityScope = animatedVisibilityScope,
+                        boundsTransform = { size, layoutCoordinates ->
+                            spring(
+                                dampingRatio = Spring.DampingRatioLowBouncy,
+                                stiffness = Spring.StiffnessMedium,
+                            )
+                        },
+                    ),
+                imageUrl = pokemon.imageSmall ?: "",
+//                imageUrl = pokemon.imageLarge ?: pokemon.imageSmall ?: "", // Todo handle
+                filterQuality = FilterQuality.High,
+                showLabel = false,
+                pokemon = pokemon,
+                onPokemonClick = { onBack() },
+            )
+        }
+    }
+}
+
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
 internal fun PokemonGrid(
     modifier: Modifier = Modifier,
@@ -139,6 +240,8 @@ internal fun PokemonGrid(
     gridStyleFlow: StateFlow<GridStyle>,
     onPokemonClick: (ShallowPokemon) -> Unit = {},
     onRetryClick: () -> Unit = {},
+    animatedVisibilityScope: AnimatedVisibilityScope,
+    sharedTransitionScope: SharedTransitionScope,
 ) {
     val gridStyle by gridStyleFlow.collectAsState()
     val columnsCount by remember(gridStyle) {
@@ -174,12 +277,26 @@ internal fun PokemonGrid(
                 color = MaterialTheme.colorScheme.surfaceContainer,
             ) {
                 val pokemon = listState[it] ?: return@CardItem
-                PokemonImage(
-                    filterQuality = filterQuality,
-                    pokemon = pokemon,
-                    position = it,
-                    onPokemonClick = onPokemonClick,
-                )
+
+                with(sharedTransitionScope) {
+                    PokemonImage(
+                        modifier = Modifier.sharedElement(
+                            state = rememberSharedContentState("pokemon-${pokemon.imageSmall}"),
+                            animatedVisibilityScope = animatedVisibilityScope,
+                            boundsTransform = { size, layoutCoordinates ->
+                                spring(
+                                    dampingRatio = Spring.DampingRatioLowBouncy,
+                                    stiffness = Spring.StiffnessLow,
+                                )
+                            }
+                        ),
+                        imageUrl = pokemon.imageSmall ?: "",
+                        filterQuality = filterQuality,
+                        showLabel = true,
+                        pokemon = pokemon,
+                        onPokemonClick = onPokemonClick,
+                    )
+                }
             }
         }
 
