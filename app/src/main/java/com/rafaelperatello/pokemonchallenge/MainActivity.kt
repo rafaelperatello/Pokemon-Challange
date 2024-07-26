@@ -118,10 +118,9 @@ class MainActivity : ComponentActivity() {
                     snackbarHostState = snackbarHostState,
                 ) { innerPadding ->
                     Column(
-                        modifier =
-                            Modifier
-                                .padding(innerPadding)
-                                .fillMaxSize(),
+                        modifier = Modifier
+                            .padding(innerPadding)
+                            .fillMaxSize(),
                     ) {
                         MainNavHost(
                             navController = navController,
@@ -247,11 +246,11 @@ private fun MainBottomBar(
     // Todo make it smaller
     NavigationBar(
         containerColor = MaterialTheme.colorScheme.surfaceContainer,
-        modifier =
-            Modifier
-                .windowInsetsPadding(
-                    WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal),
-                ).height(100.dp),
+        modifier = Modifier
+            .windowInsetsPadding(
+                WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal),
+            )
+            .height(100.dp),
     ) {
         mainScreens.forEach { destination ->
             val selected = currentRoute.value == destination.route
@@ -261,10 +260,10 @@ private fun MainBottomBar(
                 selected = selected,
                 onClick = { onItemClick(destination.route) },
                 colors =
-                    NavigationBarItemDefaults.colors().copy(
-                        selectedIndicatorColor = MaterialTheme.colorScheme.primaryContainer,
-                        selectedIconColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                    ),
+                NavigationBarItemDefaults.colors().copy(
+                    selectedIndicatorColor = MaterialTheme.colorScheme.primaryContainer,
+                    selectedIconColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                ),
                 icon = {
                     val icon =
                         if (selected) {

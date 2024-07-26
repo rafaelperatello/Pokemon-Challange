@@ -13,11 +13,11 @@ internal val ViewModule =
 
         viewModelOf(::HomeViewModel)
 
-        viewModel() {
+        viewModel {
             SettingsViewModel(
-                settingsUtil = get(),
+                cacheUtil = get(),
                 pokemonDb = get(),
-                ioDispatcher = get(named(IO_CONTEXT))
+                ioDispatcher = get(named(IO_CONTEXT)),
             )
         }
     }

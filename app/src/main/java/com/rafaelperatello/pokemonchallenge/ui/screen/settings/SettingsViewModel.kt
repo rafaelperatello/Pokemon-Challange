@@ -5,57 +5,54 @@ import androidx.compose.runtime.Stable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.rafaelperatello.pokemonchallenge.data.repository.local.PokemonDatabase
-import com.rafaelperatello.pokemonchallenge.util.SettingsUtil
+import com.rafaelperatello.pokemonchallenge.util.CacheUtil
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.WhileSubscribed
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.onCompletion
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlin.coroutines.CoroutineContext
+import kotlin.time.DurationUnit
+import kotlin.time.toDuration
 
 internal class SettingsViewModel(
-    private val settingsUtil: SettingsUtil,
+    private val cacheUtil: CacheUtil,
     private val pokemonDb: PokemonDatabase,
     private val ioDispatcher: CoroutineContext,
 ) : ViewModel() {
 
-    private val _settingState: MutableStateFlow<SettingsState> =
-        MutableStateFlow(
-            SettingsState(
-                httpCacheSize = 0,
-                imageCacheSize = 0,
+    val settingState: StateFlow<SettingsState> =
+        cacheUtil.httpCacheSizeFlow
+            .combine(cacheUtil.imageCacheSizeFlow) { httpCacheSize, imageCacheSize ->
+                Log.d(
+                    "SettingsViewModel",
+                    "upstream - state update received: $httpCacheSize, $imageCacheSize"
+                )
+                SettingsState(
+                    httpCacheSize = httpCacheSize,
+                    imageCacheSize = imageCacheSize,
+                )
+            }.distinctUntilChanged()
+            .onEach { Log.d("SettingsViewModel", "upstream - distinct state update: $it") }
+            .onStart { Log.d("SettingsViewModel", "upstream - state update started") }
+            .onCompletion { Log.d("SettingsViewModel", "upstream - state update completed") }
+            .stateIn(
+                viewModelScope,
+                started = SharingStarted.WhileSubscribed(5.toDuration(DurationUnit.SECONDS)),
+                SettingsState()
             )
-        )
-
-    val settingState: StateFlow<SettingsState> get() = _settingState
 
     private val _viewEvent: MutableStateFlow<SettingsViewEvent> =
         MutableStateFlow(SettingsViewEvent.None)
     val viewEvent: StateFlow<SettingsViewEvent>
         get() = _viewEvent.asStateFlow()
-
-    init {
-        listenToSettings()
-    }
-
-    private fun listenToSettings() {
-        Log.d("SettingsViewModel", "listenToSettings: start")
-
-        viewModelScope.launch {
-            with(settingsUtil) {
-                httpCacheSizeFlow.combine(imageCacheSizeFlow) { httpCacheSize, imageCacheSize ->
-                    SettingsState(
-                        httpCacheSize = httpCacheSize,
-                        imageCacheSize = imageCacheSize,
-                    )
-                }.collectLatest {
-                    Log.d("SettingsViewModel", "listenToSettings: $it")
-                    _settingState.value = it
-                }
-            }
-        }
-    }
 
     fun onClearDatabase() {
         viewModelScope.launch(context = ioDispatcher) {
@@ -67,25 +64,21 @@ internal class SettingsViewModel(
 
     fun onClearHttpCache() {
         viewModelScope.launch {
-            val success = settingsUtil.clearHttpCache()
+            val success = cacheUtil.clearHttpCache()
             if (success) {
                 _viewEvent.value = SettingsViewEvent.ShowSnackbar(SnackbarType.HTTP_CACHE_CLEARED)
-            }// Todo show error?
+            }
         }
 
     }
 
     fun onClearImageCache() {
         viewModelScope.launch {
-            val success = settingsUtil.clearImageCache()
+            val success = cacheUtil.clearImageCache()
             if (success) {
                 _viewEvent.value = SettingsViewEvent.ShowSnackbar(SnackbarType.IMAGE_CACHE_CLEARED)
-            } // Todo show error?
+            }
         }
-    }
-
-    fun onRefresh() {
-        Log.d("SettingsViewModel", "onRefresh")
     }
 }
 
@@ -95,8 +88,11 @@ internal data class SettingsState(
 )
 
 @Stable
-internal sealed class SettingsViewEvent(var consumed: Boolean = false) {
+internal sealed class SettingsViewEvent(
+    var consumed: Boolean = false,
+) {
     data object None : SettingsViewEvent()
+
     data class ShowSnackbar(val snackbarType: SnackbarType) : SettingsViewEvent()
 }
 
