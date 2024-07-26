@@ -106,7 +106,7 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             val theme by appSettings.appTheme.collectAsStateWithLifecycle(initialTheme)
-            val useDarkColors =
+            val isDarkTheme =
                 when (theme) {
                     AppTheme.SYSTEM -> isSystemInDarkTheme()
                     AppTheme.LIGHT -> false
@@ -114,7 +114,7 @@ class MainActivity : ComponentActivity() {
                 }
 
             PokemonChallengeTheme(
-                darkTheme = useDarkColors,
+                darkTheme = isDarkTheme,
             ) {
                 val navController = rememberNavController()
                 val currentBackStackEntry by navController.currentBackStackEntryAsState()
@@ -143,6 +143,7 @@ class MainActivity : ComponentActivity() {
                 val snackbarHostState = remember { SnackbarHostState() }
 
                 PokemonScaffold(
+                    isDarkTheme = isDarkTheme,
                     navController = navController,
                     currentRoute = currentRoute,
                     appBarMenuActions = appBarMenuActions,
@@ -169,6 +170,7 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 internal fun PokemonScaffold(
+    isDarkTheme: Boolean,
     navController: NavHostController = rememberNavController(),
     currentRoute: State<MainRoutes> = remember { mutableStateOf(MainRoutes.Home) },
     appBarMenuActions: State<AppBarAction?> = remember { mutableStateOf(null) },
@@ -177,7 +179,7 @@ internal fun PokemonScaffold(
 ) {
     Scaffold(
         modifier = Modifier.fillMaxSize(),
-        topBar = { MainAppBar(appBarMenuActions) },
+        topBar = { MainAppBar(isDarkTheme, appBarMenuActions) },
         snackbarHost = { SnackbarHost(snackbarHostState) },
         bottomBar = {
             MainBottomBar(
@@ -200,8 +202,10 @@ internal fun PokemonScaffold(
 
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
-internal fun MainAppBar(appBarMenuActions: State<AppBarAction?>) {
-    val isDarkTheme = isSystemInDarkTheme()
+internal fun MainAppBar(
+    isDarkTheme: Boolean = false,
+    appBarMenuActions: State<AppBarAction?>,
+) {
     val colors =
         if (isDarkTheme) {
             TopAppBarDefaults.topAppBarColors(

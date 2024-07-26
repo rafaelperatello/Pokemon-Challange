@@ -11,20 +11,22 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.PreviewLightDark
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.rememberNavController
 import com.rafaelperatello.pokemonchallenge.ui.theme.PokemonChallengeTheme
 
-@PreviewLightDark()
+@Preview()
 @Composable
-fun ContentPreview() {
-    PokemonChallengeTheme {
+fun ContentPreviewLight() {
+    val isDarkTheme = false
+    PokemonChallengeTheme(
+        isDarkTheme,
+    ) {
         PokemonScaffold(
             navController = rememberNavController(),
-            currentRoute =
-                remember {
-                    mutableStateOf(MainRoutes.Favorites)
-                },
+            currentRoute = remember {
+                mutableStateOf(MainRoutes.Favorites)
+            },
             body = {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
@@ -39,6 +41,38 @@ fun ContentPreview() {
                     }
                 }
             },
+            isDarkTheme = isDarkTheme,
+        )
+    }
+}
+
+@Preview()
+@Composable
+fun ContentPreviewDark() {
+    val isDarkTheme = true
+    PokemonChallengeTheme(
+        isDarkTheme
+    ) {
+        PokemonScaffold(
+            navController = rememberNavController(),
+            currentRoute = remember {
+                mutableStateOf(MainRoutes.Favorites)
+            },
+            body = {
+                Surface(
+                    modifier = Modifier.fillMaxSize(),
+                    color = MaterialTheme.colorScheme.surfaceContainerLowest,
+                ) {
+                    Column(
+                        modifier = Modifier.fillMaxSize(),
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                    ) {
+                        Text(text = "Favorites")
+                    }
+                }
+            },
+            isDarkTheme = isDarkTheme,
         )
     }
 }
