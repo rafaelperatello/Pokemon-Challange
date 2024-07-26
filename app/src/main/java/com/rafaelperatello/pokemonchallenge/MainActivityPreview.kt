@@ -76,3 +76,13 @@ fun ContentPreviewDark() {
         )
     }
 }
+
+@Preview()
+@Composable
+fun MainBottomBarPreviewLight() {
+    PokemonChallengeTheme {
+        MainBottomBar(
+            currentRoute = remember { mutableStateOf(MainRoutes.Favorites) },
+        )
+    }
+}

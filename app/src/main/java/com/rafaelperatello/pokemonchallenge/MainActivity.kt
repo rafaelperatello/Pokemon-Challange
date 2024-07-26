@@ -209,15 +209,15 @@ internal fun MainAppBar(
     val colors =
         if (isDarkTheme) {
             TopAppBarDefaults.topAppBarColors(
-                containerColor = MaterialTheme.colorScheme.primary,
-                titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                actionIconContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                containerColor = MaterialTheme.colorScheme.surfaceContainer,
+                titleContentColor = MaterialTheme.colorScheme.onSurface,
+                actionIconContentColor = MaterialTheme.colorScheme.onSurface,
             )
         } else {
             TopAppBarDefaults.topAppBarColors(
-                containerColor = MaterialTheme.colorScheme.primary,
-                titleContentColor = MaterialTheme.colorScheme.tertiaryContainer,
-                actionIconContentColor = MaterialTheme.colorScheme.tertiaryContainer,
+                containerColor = MaterialTheme.colorScheme.surfaceContainer,
+                titleContentColor = MaterialTheme.colorScheme.onSurface,
+                actionIconContentColor = MaterialTheme.colorScheme.onSurface,
             )
         }
 
@@ -263,7 +263,7 @@ internal fun MainNavHost(
         }
         composable<MainRoutes.Settings> {
             LaunchedEffect(currentRoute.value) {
-                if (currentRoute.value == MainRoutes.Favorites) {
+                if (currentRoute.value == MainRoutes.Settings) {
                     onUpdateAppBarAction(null)
                 }
             }
@@ -274,7 +274,7 @@ internal fun MainNavHost(
 }
 
 @Composable
-private fun MainBottomBar(
+internal fun MainBottomBar(
     currentRoute: State<MainRoutes>,
     onItemClick: (MainRoutes) -> Unit = {},
 ) {
@@ -327,7 +327,7 @@ private val mainScreens =
 
 @Keep
 @Serializable
-sealed class MainRoutes {
+internal sealed class MainRoutes {
     @Serializable
     data object Home : MainRoutes()
 
@@ -338,7 +338,7 @@ sealed class MainRoutes {
     data object Settings : MainRoutes()
 }
 
-sealed class BottomBarItems(
+internal sealed class BottomBarItems(
     val route: MainRoutes,
     val labelRes: Int,
     val selectedIcon: ImageVector,

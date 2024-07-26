@@ -39,7 +39,7 @@ internal fun PokemonAppBar(
         title = {
             Text(
                 text = title,
-                fontWeight = FontWeight.Bold,
+                fontWeight = FontWeight.ExtraBold,
                 letterSpacing = TextUnit(1f, TextUnitType.Sp),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
@@ -95,7 +95,7 @@ fun AppBarPreviewLight() {
                 TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primary,
                     titleContentColor = MaterialTheme.colorScheme.tertiaryContainer,
-                    actionIconContentColor = MaterialTheme.colorScheme.surfaceBright,
+                    actionIconContentColor = MaterialTheme.colorScheme.tertiaryContainer,
                 ),
             action =
                 mutableStateOf(

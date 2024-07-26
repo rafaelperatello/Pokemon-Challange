@@ -267,7 +267,7 @@ val unspecified_scheme =
 fun PokemonChallengeTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     content:
-        @Composable()
+    @Composable()
         () -> Unit,
 ) {
     val colorScheme =
@@ -281,15 +281,17 @@ fun PokemonChallengeTheme(
         typography = AppTypography,
         content = {
             val view = LocalView.current
-            val color = MaterialTheme.colorScheme.primary.toArgb()
+            val color = MaterialTheme.colorScheme.surfaceContainer.toArgb()
+            val bottomBarColor = MaterialTheme.colorScheme.surfaceContainer.toArgb()
+
             if (!view.isInEditMode) {
                 SideEffect {
                     val window = (view.context as Activity).window
                     window.statusBarColor = color
-                    window.navigationBarColor = color
+                    window.navigationBarColor = bottomBarColor
                     WindowCompat.getInsetsController(window, view).apply {
-                        isAppearanceLightStatusBars = darkTheme
-                        isAppearanceLightNavigationBars = darkTheme
+                        isAppearanceLightStatusBars = !darkTheme
+                        isAppearanceLightNavigationBars = !darkTheme
                     }
                 }
             }
