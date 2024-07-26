@@ -6,6 +6,7 @@ import androidx.paging.PagingState
 import com.rafaelperatello.pokemonchallenge.data.repository.local.PokemonDatabase
 import com.rafaelperatello.pokemonchallenge.data.repository.local.dao.PokemonDao
 import com.rafaelperatello.pokemonchallenge.data.repository.local.pojo.toShallowPokemon
+import com.rafaelperatello.pokemonchallenge.data.repository.paging.PagerConstants
 import com.rafaelperatello.pokemonchallenge.data.repository.remote.PokemonApi
 import com.rafaelperatello.pokemonchallenge.data.repository.remote.dto.mapTo
 import com.rafaelperatello.pokemonchallenge.data.repository.remote.dto.medium.toPokemonEntity
@@ -38,7 +39,7 @@ internal class PokemonUnifiedPagingSource(
             val shallowPokemonList = pokemonDao.getShallowPokemonList(pageSize, offset)
 
             if (shallowPokemonList.size == pageSize) {
-                val nextKey = page + 1
+                val nextKey = getNextKey(page, pageSize)
 
                 Log.d(
                     "PokemonPaging",
@@ -64,7 +65,7 @@ internal class PokemonUnifiedPagingSource(
 
             Log.d(
                 "PokemonPaging",
-                "RemotePagingSource - page: $page, pageSize: ${pageSize}, result: $result",
+                "RemotePagingSource - page: $page, pageSize: $pageSize, result: $result",
             )
 
             when (result) {
@@ -84,7 +85,7 @@ internal class PokemonUnifiedPagingSource(
                         when {
                             freshShallowPokemonList.isEmpty() -> null
                             freshShallowPokemonList.size < pageSize -> null
-                            else -> page + 1
+                            else -> getNextKey(page, pageSize)
                         }
 
                     LoadResult.Page(
@@ -100,13 +101,24 @@ internal class PokemonUnifiedPagingSource(
             }
         }
 
+    /**
+     * Initial load size is by default bigger than the default page size, so we need to
+     * divide it by the default page size to get the correct next key
+     */
+    private fun getNextKey(
+        page: Int,
+        pageSize: Int,
+    ) = page + pageSize / PagerConstants.PAGE_SIZE
+
     private suspend fun PokemonDao.getShallowPokemonList(
         pageSize: Int,
-        offset: Int
-    ) = this.getAllShallow(
-        limit = pageSize,
-        offset = offset
-    ).map {
-        it.toShallowPokemon()
-    }
+        offset: Int,
+    ) =
+        this
+            .getAllShallow(
+                limit = pageSize,
+                offset = offset
+            ).map {
+                it.toShallowPokemon()
+            }
 }
