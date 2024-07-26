@@ -1,7 +1,8 @@
+@file:OptIn(ExperimentalSharedTransitionApi::class)
+
 package com.rafaelperatello.pokemonchallenge.ui.screen.home
 
 import android.annotation.SuppressLint
-import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibilityScope
@@ -10,25 +11,19 @@ import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
-import androidx.compose.animation.core.tween
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Apps
+import androidx.compose.material3.CardColors
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
@@ -42,17 +37,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.FilterQuality
-import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
-import coil.compose.AsyncImage
 import com.rafaelperatello.pokemonchallenge.MainRoutes
 import com.rafaelperatello.pokemonchallenge.R
 import com.rafaelperatello.pokemonchallenge.domain.model.shallow.ShallowPokemon
@@ -147,17 +138,15 @@ internal fun HomeContent(
                     mutableStateOf(false)
                 }
 
-                SharedTransitionLayout() {
+                SharedTransitionLayout {
                     AnimatedContent(
                         targetState = showDetails,
                         label = "card_transition",
-
-                        ) { targetState ->
+                    ) { targetState ->
                         if (!targetState) {
                             with(this@AnimatedContent) {
                                 PokemonGrid(
-                                    modifier = Modifier
-                                        .fillMaxSize(),
+                                    modifier = Modifier.fillMaxSize(),
                                     lazyGridState = lazyGridState,
                                     listState = listState,
                                     gridStyleFlow = gridStyleFlow,
@@ -171,62 +160,19 @@ internal fun HomeContent(
                                 )
                             }
                         } else {
-                            DetailsContent(
+                            PokemonDetails(
                                 modifier = Modifier.fillMaxSize(),
                                 pokemon = selectedPokemon!!,
                                 animatedVisibilityScope = this,
                                 sharedTransitionScope = this@SharedTransitionLayout,
                                 onBack = {
                                     showDetails = false
-//                                    selectedPokemon = null
                                 }
                             )
                         }
                     }
                 }
             }
-        }
-    }
-}
-
-@OptIn(ExperimentalSharedTransitionApi::class)
-@Composable
-private fun DetailsContent(
-    modifier: Modifier = Modifier,
-    pokemon: ShallowPokemon,
-    sharedTransitionScope: SharedTransitionScope,
-    animatedVisibilityScope: AnimatedVisibilityScope,
-    onBack: () -> Unit,
-) {
-    Column(
-        modifier = modifier
-            .padding(24.dp)
-            .clip(MaterialTheme.shapes.medium),
-    ) {
-        BackHandler(true) {
-            onBack()
-        }
-
-        with(sharedTransitionScope) {
-            PokemonImage(
-                modifier = Modifier
-                    .sharedElement(
-                        state = rememberSharedContentState("pokemon-${pokemon.imageSmall}"),
-                        animatedVisibilityScope = animatedVisibilityScope,
-                        boundsTransform = { size, layoutCoordinates ->
-                            spring(
-                                dampingRatio = Spring.DampingRatioLowBouncy,
-                                stiffness = Spring.StiffnessMedium,
-                            )
-                        },
-                    ),
-                imageUrl = pokemon.imageSmall ?: "",
-//                imageUrl = pokemon.imageLarge ?: pokemon.imageSmall ?: "", // Todo handle
-                filterQuality = FilterQuality.High,
-                showLabel = false,
-                pokemon = pokemon,
-                onPokemonClick = { onBack() },
-            )
         }
     }
 }
@@ -273,24 +219,29 @@ internal fun PokemonGrid(
         horizontalArrangement = Arrangement.spacedBy(3.dp),
     ) {
         items(listState.itemCount, key = { it }) {
-            CardItem(
-                color = MaterialTheme.colorScheme.surfaceContainer,
-            ) {
-                val pokemon = listState[it] ?: return@CardItem
+            with(sharedTransitionScope) {
+                val pokemon = listState[it] ?: return@with
 
-                with(sharedTransitionScope) {
+                CardItem(
+                    modifier = Modifier.sharedBoundsPokemonCard(
+                        pokemon,
+                        sharedTransitionScope,
+                        animatedVisibilityScope
+                    ),
+                    elevation = CardDefaults.elevatedCardElevation(defaultElevation = 3.dp)
+                ) {
                     PokemonImage(
-                        modifier = Modifier.sharedElement(
-                            state = rememberSharedContentState("pokemon-${pokemon.imageSmall}"),
-                            animatedVisibilityScope = animatedVisibilityScope,
-                            boundsTransform = { size, layoutCoordinates ->
-                                spring(
-                                    dampingRatio = Spring.DampingRatioLowBouncy,
-                                    stiffness = Spring.StiffnessLow,
-                                )
-                            }
+                        modifier = Modifier.sharedElementPokemonImage(
+                            pokemon,
+                            sharedTransitionScope,
+                            animatedVisibilityScope
                         ),
-                        imageUrl = pokemon.imageSmall ?: "",
+                        labelModifier = Modifier.sharedElementPokemonLabel(
+                            pokemon,
+                            sharedTransitionScope,
+                            animatedVisibilityScope
+                        ),
+                        imageUrlLowRes = pokemon.imageSmall ?: "",
                         filterQuality = filterQuality,
                         showLabel = true,
                         pokemon = pokemon,
@@ -304,7 +255,7 @@ internal fun PokemonGrid(
             is LoadState.Error -> {
                 item {
                     CardItem(
-                        color = MaterialTheme.colorScheme.errorContainer,
+                        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 6.dp)
                     ) {
                         ErrorWidget(
                             modifier = Modifier.fillMaxSize(),
@@ -321,7 +272,7 @@ internal fun PokemonGrid(
             is LoadState.Loading -> {
                 item {
                     CardItem(
-                        color = MaterialTheme.colorScheme.background,
+                        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 6.dp)
                     ) {
                         LoadingWidget(
                             modifier = Modifier.fillMaxSize(),
@@ -337,4 +288,118 @@ internal fun PokemonGrid(
             else -> Unit
         }
     }
+}
+
+@OptIn(ExperimentalSharedTransitionApi::class)
+@Composable
+private fun PokemonDetails(
+    modifier: Modifier = Modifier,
+    pokemon: ShallowPokemon,
+    sharedTransitionScope: SharedTransitionScope,
+    animatedVisibilityScope: AnimatedVisibilityScope,
+    onBack: () -> Unit,
+) {
+    Column(
+        modifier = modifier
+            .padding(24.dp)
+            .clip(MaterialTheme.shapes.medium),
+    ) {
+        BackHandler(true) {
+            onBack()
+        }
+
+        CardItem(
+            modifier = Modifier
+                .padding(16.dp)
+                .sharedBoundsPokemonCard(
+                    pokemon,
+                    sharedTransitionScope,
+                    animatedVisibilityScope
+                ),
+            colors = CardColors(
+                containerColor = Color.Transparent,
+                contentColor = Color.Transparent,
+                disabledContainerColor = Color.Transparent,
+                disabledContentColor = Color.Transparent
+            ),
+            elevation = CardDefaults.elevatedCardElevation(
+                defaultElevation = 10.dp,
+                focusedElevation = 10.dp,
+            )
+        ) {
+            PokemonImage(
+                modifier = Modifier.sharedElementPokemonImage(
+                    pokemon,
+                    sharedTransitionScope,
+                    animatedVisibilityScope
+                ),
+                labelModifier = Modifier.sharedElementPokemonLabel(
+                    pokemon,
+                    sharedTransitionScope,
+                    animatedVisibilityScope
+                ),
+                imageUrlLowRes = pokemon.imageSmall ?: "",
+//                imageUrlHighRes = pokemon.imageLarge,
+                filterQuality = FilterQuality.High,
+                showLabel = true,
+                pokemon = pokemon,
+                onPokemonClick = { onBack() },
+            )
+        }
+    }
+}
+
+@Composable
+private fun Modifier.sharedElementPokemonLabel(
+    pokemon: ShallowPokemon,
+    sharedTransitionScope: SharedTransitionScope,
+    animatedVisibilityScope: AnimatedVisibilityScope,
+) = with(sharedTransitionScope) {
+    sharedElement(
+        state = rememberSharedContentState("pokemon-label-${pokemon.id}"),
+        animatedVisibilityScope = animatedVisibilityScope,
+        boundsTransform = { size, layoutCoordinates ->
+            spring(
+                dampingRatio = Spring.DampingRatioLowBouncy,
+                stiffness = Spring.StiffnessMedium,
+            )
+        },
+    )
+}
+
+@Composable
+private fun Modifier.sharedElementPokemonImage(
+    pokemon: ShallowPokemon,
+    sharedTransitionScope: SharedTransitionScope,
+    animatedVisibilityScope: AnimatedVisibilityScope,
+) = with(sharedTransitionScope) {
+    sharedElement(
+        state = rememberSharedContentState("pokemon-${pokemon.imageSmall}"),
+        animatedVisibilityScope = animatedVisibilityScope,
+        boundsTransform = { size, layoutCoordinates ->
+            spring(
+                dampingRatio = Spring.DampingRatioLowBouncy,
+                stiffness = Spring.StiffnessMedium,
+            )
+        },
+    )
+}
+
+@Composable
+private fun Modifier.sharedBoundsPokemonCard(
+    pokemon: ShallowPokemon,
+    sharedTransitionScope: SharedTransitionScope,
+    animatedVisibilityScope: AnimatedVisibilityScope,
+) = with(sharedTransitionScope) {
+    sharedBounds(
+        sharedContentState = rememberSharedContentState("pokemon-${pokemon.id}"),
+        animatedVisibilityScope = animatedVisibilityScope,
+        boundsTransform = { size, layoutCoordinates ->
+            spring(
+                dampingRatio = Spring.DampingRatioLowBouncy,
+                stiffness = Spring.StiffnessMedium,
+            )
+        },
+        renderInOverlayDuringTransition = false
+    )
 }

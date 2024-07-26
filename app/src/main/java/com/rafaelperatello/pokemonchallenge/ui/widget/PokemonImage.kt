@@ -1,5 +1,7 @@
 package com.rafaelperatello.pokemonchallenge.ui.widget
 
+import android.content.Context
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -22,6 +24,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
+import coil.compose.AsyncImagePainter
+import coil.compose.SubcomposeAsyncImage
+import coil.compose.SubcomposeAsyncImageContent
 import coil.request.CachePolicy
 import coil.request.ImageRequest
 import com.rafaelperatello.pokemonchallenge.domain.model.shallow.ShallowPokemon
@@ -30,7 +35,9 @@ import kotlinx.coroutines.Dispatchers
 @Composable
 internal fun PokemonImage(
     modifier: Modifier = Modifier,
-    imageUrl: String = "",
+    labelModifier: Modifier = Modifier,
+    imageUrlLowRes: String = "",
+    imageUrlHighRes: String? = null,
     filterQuality: FilterQuality = FilterQuality.Low,
     showLabel: Boolean = true,
     pokemon: ShallowPokemon,
@@ -43,30 +50,43 @@ internal fun PokemonImage(
     ) {
         val context = LocalContext.current
 
-        val imageRequest =
-            ImageRequest
-                .Builder(context)
-                .data(imageUrl)
-                .dispatcher(Dispatchers.IO)
-                .memoryCacheKey(imageUrl)
-                .diskCacheKey(imageUrl)
-                .diskCachePolicy(CachePolicy.ENABLED)
-                .memoryCachePolicy(CachePolicy.ENABLED)
-                .build()
+        val imageUrl = imageUrlHighRes ?: imageUrlLowRes
+        val imageRequest = buildImageRequest(context, imageUrl)
 
-        AsyncImage(
-            modifier = modifier.fillMaxSize(),
+        SubcomposeAsyncImage(
+            modifier = modifier
+                .fillMaxSize()
+                .clip(MaterialTheme.shapes.small),
             model = imageRequest,
             contentDescription = pokemon.name,
             contentScale = ContentScale.FillBounds,
             filterQuality = filterQuality,
-        )
+        ) {
+            val state = painter.state
+            Log.d("PokemonImage", "state: $state")
+            if (imageUrlHighRes != null &&
+                state is AsyncImagePainter.State.Loading || state is AsyncImagePainter.State.Error
+            ) {
+                Log.d("PokemonImage", "loading high res image")
+                AsyncImage(
+                    modifier = modifier
+                        .fillMaxSize()
+                        .clip(MaterialTheme.shapes.small),
+                    model = buildImageRequest(context, imageUrlLowRes),
+                    contentDescription = pokemon.name,
+                    contentScale = ContentScale.FillBounds,
+                    filterQuality = filterQuality,
+                )
+            } else {
+                SubcomposeAsyncImageContent()
+            }
+        }
 
         if (showLabel) {
             Text(
                 text = pokemon.id.toString(),
                 color = Color.White,
-                modifier = Modifier
+                modifier = labelModifier
                     .align(Alignment.BottomEnd)
                     .offset((-4).dp, (-4).dp)
                     .background(
@@ -82,3 +102,17 @@ internal fun PokemonImage(
         }
     }
 }
+
+private fun buildImageRequest(
+    context: Context,
+    imageUrl: String,
+) =
+    ImageRequest
+        .Builder(context)
+        .data(imageUrl)
+        .dispatcher(Dispatchers.IO)
+        .memoryCacheKey(imageUrl)
+        .diskCacheKey(imageUrl)
+        .diskCachePolicy(CachePolicy.ENABLED)
+        .memoryCachePolicy(CachePolicy.ENABLED)
+        .build()

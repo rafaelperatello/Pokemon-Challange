@@ -2,26 +2,30 @@ package com.rafaelperatello.pokemonchallenge.ui.widget
 
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.CardColors
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CardElevation
+import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 
 @Composable
 internal fun CardItem(
-    color: Color,
+    modifier: Modifier = Modifier,
+    elevation: CardElevation,
+    colors : CardColors = CardDefaults.elevatedCardColors(),
     content: @Composable () -> Unit,
 ) {
-    Surface(
-        modifier = Modifier
+    ElevatedCard(
+        modifier = modifier
             .aspectRatio(0.72f)
-            .padding(3.dp)
-            .clip(MaterialTheme.shapes.small),
-        color = color,
+            .padding(3.dp),
         shape = MaterialTheme.shapes.small,
-        content = content,
-    )
+        colors = colors,
+        elevation = elevation,
+    ) {
+        content()
+    }
 }
