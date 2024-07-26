@@ -34,18 +34,18 @@ internal class SettingsViewModel(
     val settingState: StateFlow<SettingViewState> =
         combine(
             appSettings.appTheme,
-            cacheUtil.imageCacheSizeFlow,
-            cacheUtil.networkCacheSizeFlow
-        ) { appTheme, httpCacheSize, imageCacheSize ->
+            cacheUtil.networkCacheSizeFlow,
+            cacheUtil.imageCacheSizeFlow
+        ) { appTheme, networkCacheSize, imageCacheSize ->
             Log.d(
                 "SettingsViewModel",
-                "upstream - state update received: $httpCacheSize, $imageCacheSize"
+                "upstream - state update received: $networkCacheSize, $imageCacheSize"
             )
 
             SettingViewState.Ready(
                 SettingsState(
                     appTheme = appTheme,
-                    networkCacheSize = httpCacheSize,
+                    networkCacheSize = networkCacheSize,
                     imageCacheSize = imageCacheSize,
                 )
             )
