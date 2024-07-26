@@ -15,9 +15,10 @@ internal val ViewModule =
 
         viewModel {
             SettingsViewModel(
+                ioDispatcher = get(named(IO_CONTEXT)),
                 cacheUtil = get(),
                 pokemonDb = get(),
-                ioDispatcher = get(named(IO_CONTEXT)),
+                appSettings = get()
             )
         }
     }

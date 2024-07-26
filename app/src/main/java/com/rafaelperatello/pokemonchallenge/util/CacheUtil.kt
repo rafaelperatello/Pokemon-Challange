@@ -2,8 +2,8 @@ package com.rafaelperatello.pokemonchallenge.util
 
 import android.content.Context
 import android.util.Log
-import com.rafaelperatello.pokemonchallenge.getHttpCacheDir
-import com.rafaelperatello.pokemonchallenge.getImageCacheDir
+import com.rafaelperatello.pokemonchallenge.util.extensions.getImageCacheDir
+import com.rafaelperatello.pokemonchallenge.util.extensions.getNetworkCacheDir
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.channels.BufferOverflow
@@ -27,11 +27,11 @@ private enum class FileObserverAction {
 
 internal interface CacheUtil {
 
-    val httpCacheSizeFlow: SharedFlow<Long>
+    val networkCacheSizeFlow: SharedFlow<Long>
 
     val imageCacheSizeFlow: SharedFlow<Long>
 
-    suspend fun clearHttpCache(): Boolean
+    suspend fun clearNetworkCache(): Boolean
 
     suspend fun clearImageCache(): Boolean
 }
@@ -44,15 +44,15 @@ internal class CacheUtilImpl(
 
     override val coroutineContext: CoroutineContext = SupervisorJob() + ioContext
 
-    private val _httpCacheSizeFlow: MutableSharedFlow<Long> =
+    private val _networkCacheSizeFlow: MutableSharedFlow<Long> =
         MutableSharedFlow(
             replay = 1,
             extraBufferCapacity = 1,
             onBufferOverflow = BufferOverflow.DROP_OLDEST,
         )
 
-    override val httpCacheSizeFlow: SharedFlow<Long>
-        get() = _httpCacheSizeFlow.asSharedFlow()
+    override val networkCacheSizeFlow: SharedFlow<Long>
+        get() = _networkCacheSizeFlow.asSharedFlow()
 
     private val _imageCacheSizeFlow: MutableSharedFlow<Long> =
         MutableSharedFlow(
@@ -64,16 +64,22 @@ internal class CacheUtilImpl(
     override val imageCacheSizeFlow: SharedFlow<Long>
         get() = _imageCacheSizeFlow.asSharedFlow()
 
-    private val httpFileObserver = CacheFileObserver(context.getHttpCacheDir(), coroutineContext)
+    private val networkFileObserver = CacheFileObserver(
+        dir = context.getNetworkCacheDir(),
+        ioContext = coroutineContext
+    )
 
-    private val imageFileObserver = CacheFileObserver(context.getImageCacheDir(), coroutineContext)
+    private val imageFileObserver = CacheFileObserver(
+        dir = context.getImageCacheDir(),
+        ioContext = coroutineContext
+    )
 
     init {
         observerCacheFolder(
-            subscriberOwner = _httpCacheSizeFlow,
-            fileObserver = httpFileObserver,
+            subscriberOwner = _networkCacheSizeFlow,
+            fileObserver = networkFileObserver,
         ) {
-            refreshHttpCacheSize()
+            refreshNetworkCacheSize()
         }
 
         observerCacheFolder(
@@ -120,19 +126,21 @@ internal class CacheUtilImpl(
         }
     }
 
-    override suspend fun clearHttpCache(): Boolean = withContext(coroutineContext) {
-        context.getHttpCacheDir().deleteRecursively()
-    }
-
-    override suspend fun clearImageCache(): Boolean = withContext(coroutineContext) {
-        context.getImageCacheDir().deleteRecursively()
-    }
-
-    private suspend fun refreshHttpCacheSize() {
-        Log.d("SettingsUtilImpl", "fetchHttpCacheSize")
+    override suspend fun clearNetworkCache(): Boolean =
         withContext(coroutineContext) {
-            val size = context.getHttpCacheDir().getSizeInKb()
-            _httpCacheSizeFlow.tryEmit(size)
+            context.getNetworkCacheDir().deleteRecursively()
+        }
+
+    override suspend fun clearImageCache(): Boolean =
+        withContext(coroutineContext) {
+            context.getImageCacheDir().deleteRecursively()
+        }
+
+    private suspend fun refreshNetworkCacheSize() {
+        Log.d("SettingsUtilImpl", "fetchNetworkCacheSize")
+        withContext(coroutineContext) {
+            val size = context.getNetworkCacheDir().getSizeInKb()
+            _networkCacheSizeFlow.tryEmit(size)
         }
     }
 

@@ -20,6 +20,7 @@ internal class HomeViewModel(
     private val repository: PokemonRepository,
     private val appSettings: AppSettings,
 ) : ViewModel() {
+
     private val _listState: MutableStateFlow<PagingData<ShallowPokemon>> =
         MutableStateFlow(value = PagingData.empty())
     val listState: StateFlow<PagingData<ShallowPokemon>> get() = _listState

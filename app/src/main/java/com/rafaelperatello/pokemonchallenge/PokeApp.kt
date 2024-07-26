@@ -13,6 +13,7 @@ import com.rafaelperatello.pokemonchallenge.di.NetworkModule
 import com.rafaelperatello.pokemonchallenge.di.SettingsModule
 import com.rafaelperatello.pokemonchallenge.di.UtilModule
 import com.rafaelperatello.pokemonchallenge.di.ViewModule
+import com.rafaelperatello.pokemonchallenge.util.extensions.getImageCacheDir
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.core.context.GlobalContext.startKoin

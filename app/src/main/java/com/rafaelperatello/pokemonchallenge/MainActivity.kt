@@ -51,6 +51,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.coroutineScope
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
@@ -58,16 +59,24 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.rafaelperatello.pokemonchallenge.domain.settings.AppSettings
+import com.rafaelperatello.pokemonchallenge.domain.settings.AppTheme
 import com.rafaelperatello.pokemonchallenge.ui.screen.home.HomeScreen
 import com.rafaelperatello.pokemonchallenge.ui.screen.settings.SettingsScreen
 import com.rafaelperatello.pokemonchallenge.ui.theme.PokemonChallengeTheme
 import com.rafaelperatello.pokemonchallenge.ui.widget.AppBarAction
 import com.rafaelperatello.pokemonchallenge.ui.widget.PokemonAppBar
+import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
+import org.koin.android.ext.android.inject
 
 class MainActivity : ComponentActivity() {
+
+    private val appSettings: AppSettings by inject()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -76,15 +85,37 @@ class MainActivity : ComponentActivity() {
         splashScreen.setKeepOnScreenCondition {
             keepSplash
         }
+
+        var initialTheme = AppTheme.SYSTEM
+
         lifecycle.coroutineScope.launch {
-            delay(1000)
+            val asyncTheme = async {
+                initialTheme = appSettings.appTheme.first()
+            }
+
+            val asyncDelay = async {
+                delay(1000)
+            }
+
+            asyncTheme.await()
+            asyncDelay.await()
             keepSplash = false
         }
 
         enableEdgeToEdge()
 
         setContent {
-            PokemonChallengeTheme {
+            val theme by appSettings.appTheme.collectAsStateWithLifecycle(initialTheme)
+            val useDarkColors =
+                when (theme) {
+                    AppTheme.SYSTEM -> isSystemInDarkTheme()
+                    AppTheme.LIGHT -> false
+                    AppTheme.DARK -> true
+                }
+
+            PokemonChallengeTheme(
+                darkTheme = useDarkColors,
+            ) {
                 val navController = rememberNavController()
                 val currentBackStackEntry by navController.currentBackStackEntryAsState()
                 val currentRoute: State<MainRoutes> =

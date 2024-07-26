@@ -5,6 +5,7 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
 import com.rafaelperatello.pokemonchallenge.domain.settings.AppSettings
+import com.rafaelperatello.pokemonchallenge.domain.settings.AppTheme
 import com.rafaelperatello.pokemonchallenge.domain.settings.GridStyle
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -19,11 +20,12 @@ internal class AppSettingsImpl(
 ) : AppSettings {
     companion object {
         private val keyGridStyle = intPreferencesKey("keyGridStyle")
+        private val keyAppTheme = intPreferencesKey("keyAppTheme")
     }
 
     // region Grid Style
-    override val gridStyle: Flow<GridStyle> =
-        dataStore.data
+    override val gridStyle: Flow<GridStyle>
+        get() = dataStore.data
             .map { it[keyGridStyle] ?: GridStyle.MEDIUM.id }
             .map { id -> GridStyle.entries.first { it.id == id } }
             .distinctUntilChanged()
@@ -34,10 +36,22 @@ internal class AppSettingsImpl(
                 preferences[keyGridStyle] = gridStyle.id
             }
         }
+    // endregion
 
-    override suspend fun getGridStyle(): GridStyle =
+    // region App Theme
+    override val appTheme: Flow<AppTheme>
+        get() = dataStore.data
+            .map { it[keyAppTheme] ?: AppTheme.SYSTEM.id }
+            .map { id -> AppTheme.fromId(id) }
+            .distinctUntilChanged()
+
+
+    override suspend fun setAppTheme(appTheme: AppTheme) {
         withContext(ioContext) {
-            gridStyle.first()
+            dataStore.edit { preferences ->
+                preferences[keyAppTheme] = appTheme.id
+            }
         }
+    }
     // endregion
 }

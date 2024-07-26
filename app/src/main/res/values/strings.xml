@@ -15,21 +15,28 @@
     <string name="close">Close</string>
     <string name="clear">Clear</string>
     <string name="reset">Reset</string>
+    <string name="change">Change</string>
 
     <string name="home">Home</string>
     <string name="favorite">Favorites</string>
     <string name="settings">Settings</string>
 
+    <string name="setting_app_theme">App Theme</string>
     <string name="setting_database">Database</string>
-    <string name="setting_http">Http</string>
+    <string name="setting_network">Network</string>
     <string name="setting_image">Image</string>
 
     <string name="description_reset_pokemon_table">Reset the database</string>
     <string name="description_cache_size_kb">Cache size: %1$d KB</string>
+    <string name="description_current_theme">Current: %1$s</string>
 
+    <string name="snackbar_app_theme_changed">App theme changed</string>
     <string name="snackbar_database_reset">Database reset</string>
-    <string name="snackbar_http_cleared">Http cache cleared</string>
-    <string name="snackbar_image_cleared">"Image cache cleared"</string>
+    <string name="snackbar_network_cache_cleared">Network cache cleared</string>
+    <string name="snackbar_image_cache_cleared">"Image cache cleared"</string>
 
+    <string name="app_theme_light">Light</string>
+    <string name="app_theme_dark">Dark</string>
+    <string name="app_theme_system">System</string>
 
 </resources>

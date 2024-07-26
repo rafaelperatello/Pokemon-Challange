@@ -2,6 +2,7 @@ package com.rafaelperatello.pokemonchallenge.util
 
 import android.os.FileObserver
 import android.util.Log
+import com.rafaelperatello.pokemonchallenge.util.extensions.throttleLatest
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.channels.BufferOverflow

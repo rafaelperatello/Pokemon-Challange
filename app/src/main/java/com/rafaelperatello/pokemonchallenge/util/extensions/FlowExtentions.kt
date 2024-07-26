@@ -1,4 +1,4 @@
-package com.rafaelperatello.pokemonchallenge.util
+package com.rafaelperatello.pokemonchallenge.util.extensions
 
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job

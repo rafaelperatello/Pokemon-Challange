@@ -5,6 +5,8 @@ import androidx.compose.runtime.Stable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.rafaelperatello.pokemonchallenge.data.repository.local.PokemonDatabase
+import com.rafaelperatello.pokemonchallenge.domain.settings.AppSettings
+import com.rafaelperatello.pokemonchallenge.domain.settings.AppTheme
 import com.rafaelperatello.pokemonchallenge.util.CacheUtil
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -23,30 +25,38 @@ import kotlin.time.DurationUnit
 import kotlin.time.toDuration
 
 internal class SettingsViewModel(
+    private val ioDispatcher: CoroutineContext,
     private val cacheUtil: CacheUtil,
     private val pokemonDb: PokemonDatabase,
-    private val ioDispatcher: CoroutineContext,
+    private val appSettings: AppSettings,
 ) : ViewModel() {
 
-    val settingState: StateFlow<SettingsState> =
-        cacheUtil.httpCacheSizeFlow
-            .combine(cacheUtil.imageCacheSizeFlow) { httpCacheSize, imageCacheSize ->
-                Log.d(
-                    "SettingsViewModel",
-                    "upstream - state update received: $httpCacheSize, $imageCacheSize"
-                )
+    val settingState: StateFlow<SettingViewState> =
+        combine(
+            appSettings.appTheme,
+            cacheUtil.imageCacheSizeFlow,
+            cacheUtil.networkCacheSizeFlow
+        ) { appTheme, httpCacheSize, imageCacheSize ->
+            Log.d(
+                "SettingsViewModel",
+                "upstream - state update received: $httpCacheSize, $imageCacheSize"
+            )
+
+            SettingViewState.Ready(
                 SettingsState(
-                    httpCacheSize = httpCacheSize,
+                    appTheme = appTheme,
+                    networkCacheSize = httpCacheSize,
                     imageCacheSize = imageCacheSize,
                 )
-            }.distinctUntilChanged()
+            )
+        }.distinctUntilChanged()
             .onEach { Log.d("SettingsViewModel", "upstream - distinct state update: $it") }
             .onStart { Log.d("SettingsViewModel", "upstream - state update started") }
             .onCompletion { Log.d("SettingsViewModel", "upstream - state update completed") }
             .stateIn(
                 viewModelScope,
                 started = SharingStarted.WhileSubscribed(5.toDuration(DurationUnit.SECONDS)),
-                SettingsState()
+                SettingViewState.Loading
             )
 
     private val _viewEvent: MutableStateFlow<SettingsViewEvent> =
@@ -54,22 +64,28 @@ internal class SettingsViewModel(
     val viewEvent: StateFlow<SettingsViewEvent>
         get() = _viewEvent.asStateFlow()
 
+    fun onChangeAppTheme(theme: AppTheme) {
+        viewModelScope.launch {
+            appSettings.setAppTheme(theme)
+            _viewEvent.value = SettingsViewEvent.ShowSnackbar(SnackbarType.APP_THEME_CHANGED)
+        }
+    }
+
     fun onClearDatabase() {
         viewModelScope.launch(context = ioDispatcher) {
             pokemonDb.clearAllTables()
             _viewEvent.value = SettingsViewEvent.ShowSnackbar(SnackbarType.DATABASE_RESET)
         }
-
     }
 
-    fun onClearHttpCache() {
+    fun onClearNetworkCache() {
         viewModelScope.launch {
-            val success = cacheUtil.clearHttpCache()
+            val success = cacheUtil.clearNetworkCache()
             if (success) {
-                _viewEvent.value = SettingsViewEvent.ShowSnackbar(SnackbarType.HTTP_CACHE_CLEARED)
+                _viewEvent.value =
+                    SettingsViewEvent.ShowSnackbar(SnackbarType.NETWORK_CACHE_CLEARED)
             }
         }
-
     }
 
     fun onClearImageCache() {
@@ -82,8 +98,14 @@ internal class SettingsViewModel(
     }
 }
 
+internal sealed class SettingViewState {
+    data object Loading : SettingViewState()
+    data class Ready(val settingsState: SettingsState) : SettingViewState()
+}
+
 internal data class SettingsState(
-    val httpCacheSize: Long = 0,
+    val appTheme: AppTheme = AppTheme.SYSTEM,
+    val networkCacheSize: Long = 0,
     val imageCacheSize: Long = 0,
 )
 
@@ -97,7 +119,8 @@ internal sealed class SettingsViewEvent(
 }
 
 internal enum class SnackbarType {
+    APP_THEME_CHANGED,
     DATABASE_RESET,
-    HTTP_CACHE_CLEARED,
+    NETWORK_CACHE_CLEARED,
     IMAGE_CACHE_CLEARED,
 }

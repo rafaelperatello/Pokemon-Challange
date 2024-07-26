@@ -36,7 +36,7 @@ internal fun ContentPreviewPaginating() {
                     onClick = { },
                 ),
                 SettingItemData(
-                    label = stringResource(id = R.string.setting_http),
+                    label = stringResource(id = R.string.setting_network),
                     description = descriptionHttp,
                     buttonText = stringResource(id = R.string.clear),
                     onClick = { },
