@@ -159,6 +159,7 @@ private fun SettingsSnackBar(
 
         val event = settingsViewEvent
         if (event.consumed) return@LaunchedEffect
+        event.consumed = true
 
         when (event) {
             SettingsViewEvent.None -> Unit
@@ -176,8 +177,6 @@ private fun SettingsSnackBar(
                     message = context.getString(message),
                     duration = SnackbarDuration.Short,
                 )
-
-                event.consumed = true
             }
         }
 
