@@ -1,6 +1,8 @@
 package com.rafaelperatello.pokemonchallenge.ui.widget
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.CardColors
 import androidx.compose.material3.CardDefaults
@@ -15,7 +17,7 @@ import androidx.compose.ui.unit.dp
 internal fun CardItem(
     modifier: Modifier = Modifier,
     elevation: CardElevation,
-    colors : CardColors = CardDefaults.elevatedCardColors(),
+    colors: CardColors = CardDefaults.elevatedCardColors(),
     content: @Composable () -> Unit,
 ) {
     ElevatedCard(
@@ -26,6 +28,8 @@ internal fun CardItem(
         colors = colors,
         elevation = elevation,
     ) {
-        content()
+        Box(Modifier.fillMaxSize()) {
+            content()
+        }
     }
 }

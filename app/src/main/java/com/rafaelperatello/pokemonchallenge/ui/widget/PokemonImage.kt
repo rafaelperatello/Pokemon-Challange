@@ -35,18 +35,16 @@ import kotlinx.coroutines.Dispatchers
 @Composable
 internal fun PokemonImage(
     modifier: Modifier = Modifier,
+    imageModifier: Modifier = Modifier,
     labelModifier: Modifier = Modifier,
     imageUrlLowRes: String = "",
     imageUrlHighRes: String? = null,
     filterQuality: FilterQuality = FilterQuality.Low,
     showLabel: Boolean = true,
     pokemon: ShallowPokemon,
-    onPokemonClick: (ShallowPokemon) -> Unit,
 ) {
     Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .clickable { onPokemonClick(pokemon) },
+        modifier = modifier
     ) {
         val context = LocalContext.current
 
@@ -54,7 +52,7 @@ internal fun PokemonImage(
         val imageRequest = buildImageRequest(context, imageUrl)
 
         SubcomposeAsyncImage(
-            modifier = modifier
+            modifier = imageModifier
                 .fillMaxSize()
                 .clip(MaterialTheme.shapes.small),
             model = imageRequest,
@@ -69,7 +67,7 @@ internal fun PokemonImage(
             ) {
                 Log.d("PokemonImage", "loading high res image")
                 AsyncImage(
-                    modifier = modifier
+                    modifier = imageModifier
                         .fillMaxSize()
                         .clip(MaterialTheme.shapes.small),
                     model = buildImageRequest(context, imageUrlLowRes),

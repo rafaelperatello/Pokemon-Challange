@@ -10,7 +10,11 @@ import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -26,6 +30,7 @@ import androidx.compose.material3.CardColors
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
@@ -35,10 +40,12 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.FilterQuality
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.paging.LoadState
@@ -231,7 +238,10 @@ internal fun PokemonGrid(
                     elevation = CardDefaults.elevatedCardElevation(defaultElevation = 3.dp)
                 ) {
                     PokemonImage(
-                        modifier = Modifier.sharedElementPokemonImage(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .clickable { onPokemonClick(pokemon) },
+                        imageModifier = Modifier.sharedElementPokemonImage(
                             pokemon,
                             sharedTransitionScope,
                             animatedVisibilityScope
@@ -245,7 +255,6 @@ internal fun PokemonGrid(
                         filterQuality = filterQuality,
                         showLabel = true,
                         pokemon = pokemon,
-                        onPokemonClick = onPokemonClick,
                     )
                 }
             }
@@ -304,13 +313,39 @@ private fun PokemonDetails(
             .padding(24.dp)
             .clip(MaterialTheme.shapes.medium),
     ) {
-        BackHandler(true) {
-            onBack()
+
+        var isCardFlipped by remember {
+            mutableStateOf(false)
         }
+
+        BackHandler(true) {
+            if (isCardFlipped) {
+                isCardFlipped = false
+            } else {
+                onBack()
+            }
+        }
+
+        val rotation by animateFloatAsState(
+            targetValue = if (isCardFlipped) 180f else 0f,
+            animationSpec = spring(
+                dampingRatio = Spring.DampingRatioLowBouncy,
+                stiffness = Spring.StiffnessMedium,
+            ),
+        )
 
         CardItem(
             modifier = Modifier
                 .padding(16.dp)
+                .clickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = null
+                ) {
+                    isCardFlipped = !isCardFlipped
+                }
+                .graphicsLayer {
+                    rotationY = rotation
+                }
                 .sharedBoundsPokemonCard(
                     pokemon,
                     sharedTransitionScope,
@@ -328,7 +363,13 @@ private fun PokemonDetails(
             )
         ) {
             PokemonImage(
-                modifier = Modifier.sharedElementPokemonImage(
+                modifier = Modifier
+                    .graphicsLayer {
+                        alpha = if (rotation < 90) 1f else 0f
+                    }
+                    .clip(MaterialTheme.shapes.medium)
+                    .fillMaxSize(),
+                imageModifier = Modifier.sharedElementPokemonImage(
                     pokemon,
                     sharedTransitionScope,
                     animatedVisibilityScope
@@ -343,8 +384,27 @@ private fun PokemonDetails(
                 filterQuality = FilterQuality.High,
                 showLabel = true,
                 pokemon = pokemon,
-                onPokemonClick = { onBack() },
             )
+
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .graphicsLayer {
+                        rotationY = 180f
+                        alpha = if (rotation > 90) 1f else 0f
+                    }
+                    .background(Color.White),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                Text(
+                    modifier = Modifier
+                        .padding(16.dp)
+                        .background(Color.White),
+                    text = pokemon.name,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+            }
         }
     }
 }
