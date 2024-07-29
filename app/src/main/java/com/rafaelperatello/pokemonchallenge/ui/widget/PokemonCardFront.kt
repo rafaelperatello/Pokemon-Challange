@@ -3,18 +3,15 @@ package com.rafaelperatello.pokemonchallenge.ui.widget
 import android.content.Context
 import android.util.Log
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.FilterQuality
 import androidx.compose.ui.layout.ContentScale
@@ -33,7 +30,7 @@ import com.rafaelperatello.pokemonchallenge.domain.model.shallow.ShallowPokemon
 import kotlinx.coroutines.Dispatchers
 
 @Composable
-internal fun PokemonImage(
+internal fun PokemonCardFront(
     modifier: Modifier = Modifier,
     imageModifier: Modifier = Modifier,
     labelModifier: Modifier = Modifier,
@@ -53,8 +50,7 @@ internal fun PokemonImage(
 
         SubcomposeAsyncImage(
             modifier = imageModifier
-                .fillMaxSize()
-                .clip(MaterialTheme.shapes.small),
+                .fillMaxSize(),
             model = imageRequest,
             contentDescription = pokemon.name,
             contentScale = ContentScale.FillBounds,
@@ -63,13 +59,13 @@ internal fun PokemonImage(
             val state = painter.state
             Log.d("PokemonImage", "state: $state")
             if (imageUrlHighRes != null &&
-                state is AsyncImagePainter.State.Loading || state is AsyncImagePainter.State.Error
+                state is AsyncImagePainter.State.Loading ||
+                state is AsyncImagePainter.State.Error
             ) {
                 Log.d("PokemonImage", "loading high res image")
                 AsyncImage(
                     modifier = imageModifier
-                        .fillMaxSize()
-                        .clip(MaterialTheme.shapes.small),
+                        .fillMaxSize(),
                     model = buildImageRequest(context, imageUrlLowRes),
                     contentDescription = pokemon.name,
                     contentScale = ContentScale.FillBounds,

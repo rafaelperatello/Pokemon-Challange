@@ -14,12 +14,10 @@ import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -33,7 +31,6 @@ import androidx.compose.material3.CardColors
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
@@ -43,9 +40,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.FilterQuality
 import androidx.compose.ui.graphics.graphicsLayer
@@ -62,7 +57,8 @@ import com.rafaelperatello.pokemonchallenge.ui.widget.AppBarAction
 import com.rafaelperatello.pokemonchallenge.ui.widget.CardItem
 import com.rafaelperatello.pokemonchallenge.ui.widget.ErrorWidget
 import com.rafaelperatello.pokemonchallenge.ui.widget.LoadingWidget
-import com.rafaelperatello.pokemonchallenge.ui.widget.PokemonImage
+import com.rafaelperatello.pokemonchallenge.ui.widget.PokemonCardBack
+import com.rafaelperatello.pokemonchallenge.ui.widget.PokemonCardFront
 import kotlinx.coroutines.flow.StateFlow
 import org.koin.androidx.compose.koinViewModel
 
@@ -240,7 +236,7 @@ internal fun PokemonGrid(
                     ),
                     elevation = CardDefaults.elevatedCardElevation(defaultElevation = 3.dp)
                 ) {
-                    PokemonImage(
+                    PokemonCardFront(
                         modifier = Modifier
                             .fillMaxSize()
                             .clickable { onPokemonClick(pokemon) },
@@ -313,8 +309,7 @@ private fun PokemonDetails(
 ) {
     Box(
         modifier = modifier
-            .padding(24.dp)
-            .clip(MaterialTheme.shapes.medium),
+            .padding(24.dp),
     ) {
 
         var isCardFlipped by remember {
@@ -364,15 +359,14 @@ private fun PokemonDetails(
                 disabledContentColor = Color.Transparent
             ),
             elevation = CardDefaults.elevatedCardElevation(
-                defaultElevation = 10.dp,
-                focusedElevation = 10.dp,
+                defaultElevation = 6.dp,
+                focusedElevation = 6.dp,
             )
         ) {
-            PokemonImage(
+            PokemonCardFront(
                 modifier = Modifier
                     .graphicsLayer {
                     }
-                    .clip(MaterialTheme.shapes.medium)
                     .fillMaxSize(),
                 imageModifier = Modifier.sharedElementPokemonImage(
                     pokemon,
@@ -407,33 +401,17 @@ private fun PokemonDetails(
                     rotationY = 180 + rotation
                 },
             colors = CardColors(
-                containerColor = Color.Red,
+                containerColor = Color.Transparent,
                 contentColor = Color.Transparent,
                 disabledContainerColor = Color.Transparent,
                 disabledContentColor = Color.Transparent
             ),
             elevation = CardDefaults.elevatedCardElevation(
-                defaultElevation = 10.dp,
-                focusedElevation = 10.dp,
+                defaultElevation = 6.dp,
+                focusedElevation = 6.dp,
             )
         ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .graphicsLayer {
-                    }
-                    .background(Color.White),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally,
-            ) {
-                Text(
-                    modifier = Modifier
-                        .padding(16.dp)
-                        .background(Color.White),
-                    text = pokemon.name,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-            }
+            PokemonCardBack(pokemon)
         }
     }
 }
@@ -471,6 +449,9 @@ private fun Modifier.sharedElementPokemonImage(
                 stiffness = Spring.StiffnessMedium,
             )
         },
+        clipInOverlayDuringTransition = OverlayClip(
+            clipShape = MaterialTheme.shapes.small
+        ),
     )
 }
 
