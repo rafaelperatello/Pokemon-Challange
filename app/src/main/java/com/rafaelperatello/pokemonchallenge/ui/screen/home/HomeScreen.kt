@@ -9,13 +9,16 @@ import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.animation.SharedTransitionScope
+import androidx.compose.animation.core.EaseInOut
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -308,7 +311,7 @@ private fun PokemonDetails(
     animatedVisibilityScope: AnimatedVisibilityScope,
     onBack: () -> Unit,
 ) {
-    Column(
+    Box(
         modifier = modifier
             .padding(24.dp)
             .clip(MaterialTheme.shapes.medium),
@@ -318,6 +321,15 @@ private fun PokemonDetails(
             mutableStateOf(false)
         }
 
+        val rotation by animateFloatAsState(
+            targetValue = if (isCardFlipped) 180f else 0f,
+            animationSpec = tween(
+                durationMillis = 700,
+                easing = EaseInOut
+            ),
+            label = "pokemon_card_flip",
+        )
+
         BackHandler(true) {
             if (isCardFlipped) {
                 isCardFlipped = false
@@ -326,14 +338,7 @@ private fun PokemonDetails(
             }
         }
 
-        val rotation by animateFloatAsState(
-            targetValue = if (isCardFlipped) 180f else 0f,
-            animationSpec = spring(
-                dampingRatio = Spring.DampingRatioLowBouncy,
-                stiffness = Spring.StiffnessMedium,
-            ),
-        )
-
+        // Card Front
         CardItem(
             modifier = Modifier
                 .padding(16.dp)
@@ -344,6 +349,7 @@ private fun PokemonDetails(
                     isCardFlipped = !isCardFlipped
                 }
                 .graphicsLayer {
+                    alpha = if (rotation < 90) 1f else 0f
                     rotationY = rotation
                 }
                 .sharedBoundsPokemonCard(
@@ -365,7 +371,6 @@ private fun PokemonDetails(
             PokemonImage(
                 modifier = Modifier
                     .graphicsLayer {
-                        alpha = if (rotation < 90) 1f else 0f
                     }
                     .clip(MaterialTheme.shapes.medium)
                     .fillMaxSize(),
@@ -385,13 +390,37 @@ private fun PokemonDetails(
                 showLabel = true,
                 pokemon = pokemon,
             )
+        }
 
+        // Card Back
+        CardItem(
+            modifier = Modifier
+                .padding(16.dp)
+                .clickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = null
+                ) {
+                    isCardFlipped = !isCardFlipped
+                }
+                .graphicsLayer {
+                    alpha = if (rotation > 90) 1f else 0f
+                    rotationY = 180 + rotation
+                },
+            colors = CardColors(
+                containerColor = Color.Red,
+                contentColor = Color.Transparent,
+                disabledContainerColor = Color.Transparent,
+                disabledContentColor = Color.Transparent
+            ),
+            elevation = CardDefaults.elevatedCardElevation(
+                defaultElevation = 10.dp,
+                focusedElevation = 10.dp,
+            )
+        ) {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
                     .graphicsLayer {
-                        rotationY = 180f
-                        alpha = if (rotation > 90) 1f else 0f
                     }
                     .background(Color.White),
                 verticalArrangement = Arrangement.Center,
