@@ -34,7 +34,7 @@ internal fun PokemonCardFront(
     modifier: Modifier = Modifier,
     imageModifier: Modifier = Modifier,
     labelModifier: Modifier = Modifier,
-    imageUrlLowRes: String = "",
+    imageUrlLowRes: String? = null,
     imageUrlHighRes: String? = null,
     filterQuality: FilterQuality = FilterQuality.Low,
     showLabel: Boolean = true,
@@ -99,7 +99,7 @@ internal fun PokemonCardFront(
 
 private fun buildImageRequest(
     context: Context,
-    imageUrl: String,
+    imageUrl: String?,
 ) =
     ImageRequest
         .Builder(context)
