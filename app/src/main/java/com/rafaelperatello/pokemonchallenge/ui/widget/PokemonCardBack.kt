@@ -22,7 +22,9 @@ import com.rafaelperatello.pokemonchallenge.domain.model.shallow.ShallowPokemon
 import com.rafaelperatello.pokemonchallenge.ui.theme.PokemonChallengeTheme
 
 @Composable
-internal fun PokemonCardBack(pokemon: ShallowPokemon) {
+internal fun PokemonCardBack(
+    pokemon: ShallowPokemon,
+) {
     Box(modifier = Modifier.fillMaxSize()) {
         Image(
             modifier = Modifier
